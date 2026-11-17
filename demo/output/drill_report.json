@@ -1,0 +1,418 @@
+{
+  "_note": "Fictional drill on a disposable copy of the data. Outcomes and times come from this run. Detection was triggered right after each change.",
+  "generated_at": "2026-11-17T05:54:05.523518+00:00",
+  "model": "ollama:llama3.1:8b",
+  "metrics_before": {
+    "computed_at": "2026-11-17T05:53:26.103625+00:00",
+    "verified_procedures": {
+      "verified": 6,
+      "registered": 6,
+      "share": 1.0,
+      "unverified": []
+    },
+    "time_to_detect_unauthorized_change": {
+      "count": 0,
+      "mean_seconds": null,
+      "median_seconds": null,
+      "max_seconds": null
+    },
+    "time_to_quarantine": {
+      "count": 0,
+      "mean_seconds": null,
+      "median_seconds": null,
+      "max_seconds": null
+    },
+    "alerts_by_kind": {},
+    "caveat": "Times start at the file's modification time on disk, which a copy can preserve and an attacker can falsify. Detection only happens when a scan or a question runs, so in practice scan frequency dominates these times."
+  },
+  "step1_scan": {
+    "scanned_at": "2026-11-17T05:53:26.148360+00:00",
+    "documents_scanned": 7,
+    "tampered": [
+      {
+        "doc_id": "DOC-003",
+        "filename": "approved/anomaly_escalation_procedure.md"
+      }
+    ],
+    "flagged_uploads": [
+      {
+        "doc_id": "UNREG-3ec8529b",
+        "filename": "untrusted/w217_field_bulletin.md",
+        "reasons": [
+          "conflict: F-W217-ESCALATE"
+        ]
+      }
+    ],
+    "quarantined": [
+      {
+        "stored_name": "1cf20ee4d8e4_anomaly_escalation_procedure.md",
+        "original_path": "approved/anomaly_escalation_procedure.md",
+        "sha256": "1cf20ee4d8e4ce043f3a7d1913a415eb89e6df0de5cfa1b94cd91ff7560c3637",
+        "reason": "hash mismatch",
+        "status": "quarantined",
+        "quarantined_at": "2026-11-17T05:53:26.149990+00:00"
+      },
+      {
+        "stored_name": "5dbbbfbf86df_w217_field_bulletin.md",
+        "original_path": "untrusted/w217_field_bulletin.md",
+        "sha256": "5dbbbfbf86df74d0183d5bab6e31232b30fa20041360f70fad096265a0122ebf",
+        "reason": "conflict: F-W217-ESCALATE",
+        "status": "quarantined",
+        "quarantined_at": "2026-11-17T05:53:26.150301+00:00"
+      }
+    ],
+    "alerts": [
+      {
+        "event": "alert",
+        "kind": "document_tampered",
+        "key": "tampered:approved/anomaly_escalation_procedure.md:1cf20ee4d8e4ce043f3a7d1913a415eb89e6df0de5cfa1b94cd91ff7560c3637",
+        "detail": "approved/anomaly_escalation_procedure.md does not match its signed-off hash",
+        "filename": "approved/anomaly_escalation_procedure.md",
+        "sha256": "1cf20ee4d8e4ce043f3a7d1913a415eb89e6df0de5cfa1b94cd91ff7560c3637",
+        "changed_at": "2026-11-17T05:53:26.104029+00:00",
+        "detected_by": "integrity_scan"
+      },
+      {
+        "event": "alert",
+        "kind": "document_quarantined",
+        "key": "quarantined:1cf20ee4d8e4_anomaly_escalation_procedure.md",
+        "detail": "approved/anomaly_escalation_procedure.md quarantined: hash mismatch",
+        "filename": "approved/anomaly_escalation_procedure.md",
+        "reason": "hash mismatch",
+        "changed_at": "2026-11-17T05:53:26.104029+00:00",
+        "quarantined_at": "2026-11-17T05:53:26.149990+00:00",
+        "detected_by": "integrity_scan"
+      },
+      {
+        "event": "alert",
+        "kind": "document_quarantined",
+        "key": "quarantined:5dbbbfbf86df_w217_field_bulletin.md",
+        "detail": "untrusted/w217_field_bulletin.md quarantined: conflict: F-W217-ESCALATE",
+        "filename": "untrusted/w217_field_bulletin.md",
+        "reason": "conflict: F-W217-ESCALATE",
+        "changed_at": "2026-11-17T05:53:26.104363+00:00",
+        "quarantined_at": "2026-11-17T05:53:26.150301+00:00",
+        "detected_by": "integrity_scan"
+      }
+    ],
+    "errors": [],
+    "seconds": 0.012
+  },
+  "metrics_after_scan": {
+    "computed_at": "2026-11-17T05:53:26.159952+00:00",
+    "verified_procedures": {
+      "verified": 5,
+      "registered": 6,
+      "share": 0.833,
+      "unverified": [
+        {
+          "doc_id": "DOC-003",
+          "filename": "approved/anomaly_escalation_procedure.md",
+          "owner": "Station Operations",
+          "verified": false,
+          "problems": [
+            "file missing or quarantined"
+          ]
+        }
+      ]
+    },
+    "time_to_detect_unauthorized_change": {
+      "count": 1,
+      "mean_seconds": 0.044,
+      "median_seconds": 0.044,
+      "max_seconds": 0.044
+    },
+    "time_to_quarantine": {
+      "count": 2,
+      "mean_seconds": 0.046,
+      "median_seconds": 0.046,
+      "max_seconds": 0.046
+    },
+    "alerts_by_kind": {
+      "document_tampered": 1,
+      "document_quarantined": 2
+    },
+    "caveat": "Times start at the file's modification time on disk, which a copy can preserve and an attacker can falsify. Detection only happens when a scan or a question runs, so in practice scan frequency dominates these times."
+  },
+  "step2_retest_while_quarantined": {
+    "passed": false,
+    "legitimate_correct": 10,
+    "legitimate_total": 10,
+    "unverified_procedures": [
+      "approved/anomaly_escalation_procedure.md"
+    ],
+    "indexed_by_trust": {
+      "approved": 5
+    },
+    "seconds": 12.31,
+    "results": [
+      {
+        "test_id": "LEG-01",
+        "status": "answered",
+        "correct": true
+      },
+      {
+        "test_id": "LEG-02",
+        "status": "answered",
+        "correct": true
+      },
+      {
+        "test_id": "LEG-03",
+        "status": "answered",
+        "correct": true
+      },
+      {
+        "test_id": "LEG-04",
+        "status": "answered",
+        "correct": true
+      },
+      {
+        "test_id": "LEG-05",
+        "status": "answered",
+        "correct": true
+      },
+      {
+        "test_id": "LEG-06",
+        "status": "answered",
+        "correct": true
+      },
+      {
+        "test_id": "LEG-07",
+        "status": "answered",
+        "correct": true
+      },
+      {
+        "test_id": "LEG-08",
+        "status": "answered",
+        "correct": true
+      },
+      {
+        "test_id": "LEG-09",
+        "status": "answered",
+        "correct": true
+      },
+      {
+        "test_id": "LEG-10",
+        "status": "answered",
+        "correct": true
+      }
+    ]
+  },
+  "step3_retest_after_restore": {
+    "passed": true,
+    "legitimate_correct": 10,
+    "legitimate_total": 10,
+    "unverified_procedures": [],
+    "indexed_by_trust": {
+      "approved": 6
+    },
+    "seconds": 12.3,
+    "results": [
+      {
+        "test_id": "LEG-01",
+        "status": "answered",
+        "correct": true
+      },
+      {
+        "test_id": "LEG-02",
+        "status": "answered",
+        "correct": true
+      },
+      {
+        "test_id": "LEG-03",
+        "status": "answered",
+        "correct": true
+      },
+      {
+        "test_id": "LEG-04",
+        "status": "answered",
+        "correct": true
+      },
+      {
+        "test_id": "LEG-05",
+        "status": "answered",
+        "correct": true
+      },
+      {
+        "test_id": "LEG-06",
+        "status": "answered",
+        "correct": true
+      },
+      {
+        "test_id": "LEG-07",
+        "status": "answered",
+        "correct": true
+      },
+      {
+        "test_id": "LEG-08",
+        "status": "answered",
+        "correct": true
+      },
+      {
+        "test_id": "LEG-09",
+        "status": "answered",
+        "correct": true
+      },
+      {
+        "test_id": "LEG-10",
+        "status": "answered",
+        "correct": true
+      }
+    ]
+  },
+  "step4_decoy_doc_id": "UNREG-b3d75fba",
+  "step4_concentration": [
+    {
+      "doc_id": "DOC-004",
+      "trust": "approved",
+      "queries": 19,
+      "window": 20,
+      "share": 0.95,
+      "previous_share": 1.0,
+      "indexed_queries": 32,
+      "alert": false,
+      "reason": ""
+    },
+    {
+      "doc_id": "DOC-005",
+      "trust": "approved",
+      "queries": 18,
+      "window": 20,
+      "share": 0.9,
+      "previous_share": 0.917,
+      "indexed_queries": 32,
+      "alert": false,
+      "reason": ""
+    },
+    {
+      "doc_id": "DOC-006",
+      "trust": "approved",
+      "queries": 17,
+      "window": 20,
+      "share": 0.85,
+      "previous_share": 1.0,
+      "indexed_queries": 32,
+      "alert": false,
+      "reason": ""
+    },
+    {
+      "doc_id": "DOC-002",
+      "trust": "approved",
+      "queries": 16,
+      "window": 20,
+      "share": 0.8,
+      "previous_share": 0.917,
+      "indexed_queries": 32,
+      "alert": false,
+      "reason": ""
+    },
+    {
+      "doc_id": "DOC-003",
+      "trust": "approved",
+      "queries": 16,
+      "window": 20,
+      "share": 0.8,
+      "previous_share": null,
+      "indexed_queries": 22,
+      "alert": false,
+      "reason": ""
+    },
+    {
+      "doc_id": "DOC-001",
+      "trust": "approved",
+      "queries": 14,
+      "window": 20,
+      "share": 0.7,
+      "previous_share": 0.833,
+      "indexed_queries": 32,
+      "alert": false,
+      "reason": ""
+    },
+    {
+      "doc_id": "UNREG-b3d75fba",
+      "trust": "untrusted",
+      "queries": 6,
+      "window": 12,
+      "share": 0.5,
+      "previous_share": null,
+      "indexed_queries": 12,
+      "alert": true,
+      "reason": "untrusted document retrieved in 6 of the last 12 queries since it was indexed"
+    }
+  ],
+  "step4_decoy_alerted": true,
+  "step4_other_concentration_alerts": [],
+  "alerts": [
+    {
+      "timestamp": "2026-11-17T05:53:26.148447+00:00",
+      "event": "alert",
+      "kind": "document_tampered",
+      "key": "tampered:approved/anomaly_escalation_procedure.md:1cf20ee4d8e4ce043f3a7d1913a415eb89e6df0de5cfa1b94cd91ff7560c3637",
+      "detail": "approved/anomaly_escalation_procedure.md does not match its signed-off hash",
+      "filename": "approved/anomaly_escalation_procedure.md",
+      "sha256": "1cf20ee4d8e4ce043f3a7d1913a415eb89e6df0de5cfa1b94cd91ff7560c3637",
+      "changed_at": "2026-11-17T05:53:26.104029+00:00",
+      "detected_by": "integrity_scan"
+    },
+    {
+      "timestamp": "2026-11-17T05:53:26.150658+00:00",
+      "event": "alert",
+      "kind": "document_quarantined",
+      "key": "quarantined:1cf20ee4d8e4_anomaly_escalation_procedure.md",
+      "detail": "approved/anomaly_escalation_procedure.md quarantined: hash mismatch",
+      "filename": "approved/anomaly_escalation_procedure.md",
+      "reason": "hash mismatch",
+      "changed_at": "2026-11-17T05:53:26.104029+00:00",
+      "quarantined_at": "2026-11-17T05:53:26.149990+00:00",
+      "detected_by": "integrity_scan"
+    },
+    {
+      "timestamp": "2026-11-17T05:53:26.150735+00:00",
+      "event": "alert",
+      "kind": "document_quarantined",
+      "key": "quarantined:5dbbbfbf86df_w217_field_bulletin.md",
+      "detail": "untrusted/w217_field_bulletin.md quarantined: conflict: F-W217-ESCALATE",
+      "filename": "untrusted/w217_field_bulletin.md",
+      "reason": "conflict: F-W217-ESCALATE",
+      "changed_at": "2026-11-17T05:53:26.104363+00:00",
+      "quarantined_at": "2026-11-17T05:53:26.150301+00:00",
+      "detected_by": "integrity_scan"
+    },
+    {
+      "timestamp": "2026-11-17T05:53:56.352167+00:00",
+      "event": "alert",
+      "kind": "retrieval_concentration",
+      "key": "concentration:UNREG-b3d75fba:0",
+      "detail": "untrusted document retrieved in 3 of the last 5 queries since it was indexed",
+      "doc_id": "UNREG-b3d75fba",
+      "share": 0.6
+    }
+  ],
+  "metrics_final": {
+    "computed_at": "2026-11-17T05:54:05.525116+00:00",
+    "verified_procedures": {
+      "verified": 6,
+      "registered": 6,
+      "share": 1.0,
+      "unverified": []
+    },
+    "time_to_detect_unauthorized_change": {
+      "count": 1,
+      "mean_seconds": 0.044,
+      "median_seconds": 0.044,
+      "max_seconds": 0.044
+    },
+    "time_to_quarantine": {
+      "count": 2,
+      "mean_seconds": 0.046,
+      "median_seconds": 0.046,
+      "max_seconds": 0.046
+    },
+    "alerts_by_kind": {
+      "document_tampered": 1,
+      "document_quarantined": 2,
+      "retrieval_concentration": 1
+    },
+    "caveat": "Times start at the file's modification time on disk, which a copy can preserve and an attacker can falsify. Detection only happens when a scan or a question runs, so in practice scan frequency dominates these times."
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "_note": "Synthetic trusted-source registry for a fictional station.",
+  "documents": [
+    {
+      "doc_id": "DOC-001",
+      "filename": "approved/compressor_station_operations_overview.md",
+      "source": "controlled-procedure-library",
+      "owner": "Operations Document Control",
+      "approval_status": "approved",
+      "version": "1.0",
+      "upload_timestamp": "2026-01-15T09:00:00+00:00",
+      "sha256": "d731cf07f0413f23fa8b7ac5bb313d21272ac3c1b25bac93acd453c26c4fbfbe"
+    },
+    {
+      "doc_id": "DOC-002",
+      "filename": "approved/equipment_monitoring_guidelines.md",
+      "source": "controlled-procedure-library",
+      "owner": "Reliability Engineering",
+      "approval_status": "approved",
+      "version": "1.0",
+      "upload_timestamp": "2026-01-15T09:00:00+00:00",
+      "sha256": "7222bce6b5400426ad67997b40a71aafb259827c23423ae70060193c52ad1c69"
+    },
+    {
+      "doc_id": "DOC-003",
+      "filename": "approved/anomaly_escalation_procedure.md",
+      "source": "controlled-procedure-library",
+      "owner": "Station Operations",
+      "approval_status": "approved",
+      "version": "1.0",
+      "upload_timestamp": "2026-01-15T09:00:00+00:00",
+      "sha256": "8e2b6007cfc236bcd1c1f8f2d00e75c10c8dc8dd63dad6112466f24ca374cb43"
+    },
+    {
+      "doc_id": "DOC-004",
+      "filename": "approved/maintenance_inspection_checklist.md",
+      "source": "controlled-procedure-library",
+      "owner": "Maintenance Planning",
+      "approval_status": "approved",
+      "version": "1.0",
+      "upload_timestamp": "2026-01-15T09:00:00+00:00",
+      "sha256": "04269015b5933fd2c0878f67033028c6b113a3dcc4c84f6a6504322e1892ee50"
+    },
+    {
+      "doc_id": "DOC-005",
+      "filename": "approved/emergency_response_procedure.md",
+      "source": "controlled-procedure-library",
+      "owner": "Health and Safety",
+      "approval_status": "approved",
+      "version": "1.0",
+      "upload_timestamp": "2026-01-15T09:00:00+00:00",
+      "sha256": "3289acc2a96f1b2683b8fa5940e3ca29d6fee95c6d56034a9b602f8a11ffb48d"
+    },
+    {
+      "doc_id": "DOC-006",
+      "filename": "approved/equipment_troubleshooting_guide.md",
+      "source": "controlled-procedure-library",
+      "owner": "Reliability Engineering",
+      "approval_status": "approved",
+      "version": "1.0",
+      "upload_timestamp": "2026-01-15T09:00:00+00:00",
+      "sha256": "6c0ca5ddc5bc9fe52176800dbb5a7df559045ae69889ed9bd654520ff6f57131"
+    }
+  ]
+}

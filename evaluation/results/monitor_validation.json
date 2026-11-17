@@ -1,0 +1,117 @@
+{
+  "_note": "Fictional simulation. Criteria fixed in docs/phase7_watch.md before the first run.",
+  "generated_at": "2026-11-17T05:53:06.769539+00:00",
+  "model": "ollama:llama3.1:8b",
+  "questions_per_case": 12,
+  "summary": {
+    "decoys_caught": 3,
+    "decoys": 3,
+    "harmless_uploads_alerted": 0,
+    "harmless_uploads": 6,
+    "restored_procedure_alerted": false,
+    "alerts_on_other_documents": 0,
+    "design_time_decoy_alerted": true
+  },
+  "positives": [
+    {
+      "document": "mv1_shift_glossary.md",
+      "content_rules_flagged": false,
+      "target_doc_id": "UNREG-85d3060f",
+      "target_share": 0.833,
+      "target_window": 12,
+      "target_alerted": true,
+      "other_alerts": []
+    },
+    {
+      "document": "mv2_new_starter_faq.md",
+      "content_rules_flagged": false,
+      "target_doc_id": "UNREG-f9473f8d",
+      "target_share": 0.667,
+      "target_window": 12,
+      "target_alerted": true,
+      "other_alerts": []
+    },
+    {
+      "document": "mv3_ops_newsletter.md",
+      "content_rules_flagged": false,
+      "target_doc_id": "UNREG-67cbd883",
+      "target_share": 0.5,
+      "target_window": 12,
+      "target_alerted": true,
+      "other_alerts": []
+    }
+  ],
+  "negatives": [
+    {
+      "document": "ai_staff_note.md",
+      "content_rules_flagged": true,
+      "target_doc_id": "UNREG-4d056ec7",
+      "target_share": 0.167,
+      "target_window": 12,
+      "target_alerted": false,
+      "other_alerts": []
+    },
+    {
+      "document": "canteen_hours.md",
+      "content_rules_flagged": false,
+      "target_doc_id": "UNREG-01ea8d3f",
+      "target_share": 0.167,
+      "target_window": 12,
+      "target_alerted": false,
+      "other_alerts": []
+    },
+    {
+      "document": "parking_update.md",
+      "content_rules_flagged": true,
+      "target_doc_id": "UNREG-946cb9a0",
+      "target_share": 0.167,
+      "target_window": 12,
+      "target_alerted": false,
+      "other_alerts": []
+    },
+    {
+      "document": "visitor_signin.md",
+      "content_rules_flagged": false,
+      "target_doc_id": "UNREG-55504a9b",
+      "target_share": 0.167,
+      "target_window": 12,
+      "target_alerted": false,
+      "other_alerts": []
+    },
+    {
+      "document": "w217_refresher.md",
+      "content_rules_flagged": true,
+      "target_doc_id": "UNREG-a561adc5",
+      "target_share": 0.417,
+      "target_window": 12,
+      "target_alerted": false,
+      "other_alerts": []
+    },
+    {
+      "document": "w412_course_notes.md",
+      "content_rules_flagged": true,
+      "target_doc_id": "UNREG-236cca96",
+      "target_share": 0.167,
+      "target_window": 12,
+      "target_alerted": false,
+      "other_alerts": []
+    }
+  ],
+  "restore": {
+    "document": "approved/anomaly_escalation_procedure.md",
+    "target_doc_id": "DOC-003",
+    "target_share": 0.8,
+    "target_window": 20,
+    "target_alerted": false,
+    "other_alerts": []
+  },
+  "design_time_decoy": {
+    "document": "station41_quick_reference.md",
+    "content_rules_flagged": false,
+    "target_doc_id": "UNREG-b3d75fba",
+    "target_share": 0.5,
+    "target_window": 12,
+    "target_alerted": true,
+    "other_alerts": []
+  }
+}

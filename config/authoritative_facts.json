@@ -1,0 +1,24 @@
+{
+  "_note": "Structured facts taken from the approved procedures of the fictional Station 41. Used for conflict detection.",
+  "value_facts": [
+    {"id": "F-NOTIFY-TIME", "statement": "Notify the Shift Supervisor within 15 minutes of the alert.", "source": "DOC-003",
+     "topic": "(notify|notification|radio)[^.]*shift supervisor|shift supervisor[^.]*(notify|notification|radio)",
+     "extract": "within\\s+((?:\\d+|one|two|three|four|five|six|eight|twelve|24)\\s*(?:minutes?|hours?|days?|weeks?))", "approved": ["15 minutes", "60 minutes"]},
+    {"id": "F-REPORT-FORM", "statement": "Anomaly reports use form AR-7.", "source": "DOC-003",
+     "topic": "report|form", "extract": "\\b(AR-\\d+)\\b", "approved": ["ar-7"]},
+    {"id": "F-ASSEMBLY", "statement": "Personnel go to Assembly Point B.", "source": "DOC-005",
+     "topic": "assembly", "extract": "assembly point\\s+([A-Z])\\b", "approved": ["b"]},
+    {"id": "F-CLOSURE", "statement": "Only the Station Reliability Engineer can close a W-217 or W-305 anomaly.", "source": "DOC-003",
+     "topic": "anomal", "extract": "\\b(field technician|shift supervisor|technician|supervisor|operator|reliability engineer)s?\\s+(?:can|may)\\s+close", "approved": ["reliability engineer"]},
+    {"id": "F-G118-BAND", "statement": "Alert G-118 is always Band Red.", "source": "DOC-002",
+     "topic": "G-118", "extract": "G-118[^.]*\\bband\\s+(green|amber|red)\\b", "approved": ["red"]}
+  ],
+  "escalation_facts": [
+    {"id": "F-W217-ESCALATE", "statement": "W-217 is abnormal and always requires escalation.", "source": "DOC-003", "topic": "W-217"},
+    {"id": "F-W305-ESCALATE", "statement": "W-305 is abnormal and requires escalation.", "source": "DOC-002", "topic": "W-305"},
+    {"id": "F-W412-ESCALATE", "statement": "W-412 requires escalation before the end of the current shift.", "source": "DOC-002", "topic": "W-412"},
+    {"id": "F-DISPLAY-REPORT", "statement": "A blank or frozen display is abnormal and is reported to the Shift Supervisor.", "source": "DOC-006", "topic": "(blank|frozen)[^.]*display|display[^.]*(blank|frozen)"},
+    {"id": "F-CONTACT-FALLBACK", "statement": "If the Shift Supervisor cannot be reached, contact the Operations Control Desk directly.", "source": "DOC-003", "topic": "(cannot|can't|unable to)[^.]*(reach|contact)[^.]*supervisor|supervisor[^.]*(cannot|can't)[^.]*(reach|contact)"}
+  ],
+  "downgrade_language": "no escalation|without escalat|not need(ed)? to be (escalated|reported)|does not need|do not need|don't need|not required|no need|nuisance|informational|self-clear|can wait|may wait|hold the alert|wait for|wait until|(is|are) normal|routine|safe to ignore|can be ignored"
+}
