@@ -1,13 +1,17 @@
 """Streamlit dashboard for the RAG Shield simulation. Run: streamlit run app.py"""
 from __future__ import annotations
 
+import html
 import json
 import re
 from datetime import datetime
 
+from pathlib import Path
+
 import pandas as pd
 import streamlit as st
 
+from config import palette
 from config.settings import load_settings
 from demo.run_demo import OUTPUT as DEMO_OUTPUT
 from demo.run_demo import run as run_demo
@@ -17,6 +21,7 @@ from evaluation import export_fair
 from evaluation import review as verdicts
 from evaluation import summarize as summaries
 from evaluation.harness import load_cases
+from evaluation.headline import headline
 from evaluation.charts import ablation_chart, attack_success_chart
 from src.ingestion import load_corpus
 from src.llm_client import LLMError
@@ -26,9 +31,49 @@ from src.monitoring import (alerts, all_events, governance_metrics, integrity_sc
 from src.rag_pipeline import RAGPipeline, RAGResult
 from src.shield import ShieldConfig
 
-st.set_page_config(page_title="RAG Shield", layout="wide")
+st.set_page_config(page_title="RAG Shield", page_icon=":material/shield:", layout="wide")
+
+# Static styles for the few elements Streamlit has no theme token for. Values
+# come from config/palette.py; see DESIGN.md.
+STYLE = f"""<style>
+.rs-stats {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+            gap: 0.75rem 2rem; margin: 0.25rem 0 1rem; }}
+.rs-label {{ font-size: 0.875rem; font-weight: 600; color: {palette.INK_MUTED}; }}
+.rs-value {{ font-size: 2rem; font-weight: 700; color: {palette.INK}; line-height: 1.2;
+            font-variant-numeric: tabular-nums; }}
+.rs-empty {{ font-size: 1rem; color: {palette.INK_MUTED}; padding-top: 0.5rem; }}
+.rs-note {{ font-size: 0.875rem; color: {palette.INK_MUTED}; }}
+/* Streamlit fades blockquotes and captions to 60% (about 4.1 to 4.3:1). Full-strength
+   Slate Note keeps them at 7.3:1. */
+[data-testid="stMarkdownContainer"] blockquote {{ opacity: 1; color: {palette.INK}; }}
+[data-testid="stCaptionContainer"], [data-testid="stWidgetLabel"] + div [data-testid="stMarkdownContainer"] p,
+[data-testid="stRadio"] [data-testid="stCaptionContainer"] {{ opacity: 1 !important; color: {palette.INK_MUTED}; }}
+/* Keyboard focus in the sidebar: a clear outline, distinct from the current-page tint. */
+[data-testid="stSidebarNav"] a:focus-visible {{ outline: 2px solid {palette.SHIELD};
+                                                 outline-offset: 2px; }}
+/* Headings: tighter tracking at display sizes. */
+h1 {{ letter-spacing: -0.02em; }}
+h2, h3 {{ letter-spacing: -0.01em; }}
+.rs-eyebrow {{ font-size: 0.875rem; font-weight: 700; letter-spacing: 0.08em;
+              text-transform: uppercase; color: {palette.SHIELD}; margin-bottom: -0.75rem; }}
+/* Measured-results strip: proportion bars, lower is better. */
+.rs-results {{ display: grid; gap: 1.1rem; margin: 0.25rem 0 0.5rem; }}
+.rs-row-title {{ font-weight: 700; color: {palette.INK}; }}
+.rs-row-title span {{ font-weight: 600; color: {palette.DANGER_TEXT}; margin-left: 0.5rem; }}
+.rs-bar {{ display: grid; grid-template-columns: 7.5rem 1fr 6.5rem; align-items: center;
+          gap: 0.75rem; margin-top: 0.35rem; }}
+.rs-bar-name {{ font-weight: 600; }}
+.rs-bar-track {{ height: 0.9rem; background: {palette.PANEL}; border-radius: 4px;
+                 border: 1px solid {palette.RULE}; overflow: hidden; }}
+.rs-bar-fill {{ height: 100%; border-radius: 3px 0 0 3px; }}
+.rs-bar-count {{ font-variant-numeric: tabular-nums; font-weight: 700; text-align: right; }}
+@media (prefers-reduced-motion: reduce) {{
+  * {{ animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }}
+}}
+</style>"""
 
 MODE_LABELS = {"baseline": "Baseline (no controls)", "shielded": "RAG Shield"}
+SHORT_MODE = {"baseline": "Baseline", "shielded": "RAG Shield"}
 COLUMN_LABELS = {
     "doc_id": "Doc ID", "sha256": "SHA-256", "query_id": "Query ID",
     "shield_mode": "Mode", "response_outcome": "Outcome", "withheld_reason": "Withheld because",
@@ -39,6 +84,8 @@ COLUMN_LABELS = {
     "partial_successes": "Partial", "attack_success_rate": "Attack success",
     "asr_ci_low": "95% CI low", "asr_ci_high": "95% CI high", "false_positives": "False positives",
 }
+LOGO = Path(__file__).parent / "assets" / "logo.svg"
+PERCENT_COLUMNS = {"share", "previous_share"}
 SUMMARY_COLUMNS = ["config", "scenario", "attack_category", "attempts", "correct",
                    "clear_successes", "partial_successes", "attack_success_rate",
                    "asr_ci_low", "asr_ci_high", "detected", "false_positives"]
@@ -78,6 +125,10 @@ def when(iso: str) -> str:
         return str(iso)
 
 
+def sentence(text: str) -> str:
+    return plain(text[:1].upper() + text[1:] + ".")
+
+
 def outcome_text(outcome: str) -> str:
     return OUTCOME_TEXT.get(outcome, f"scored {humanize(outcome)}")
 
@@ -102,12 +153,31 @@ def table(rows, columns: list[str] | None = None) -> None:
             frame[column] = frame[column].map(lambda v: when(v) if isinstance(v, str) else v)
         elif column in ("attack_success_rate", "asr_ci_low", "asr_ci_high"):
             frame[column] = (frame[column] * 100).round(0)
+        elif column in PERCENT_COLUMNS:
+            frame[column] = frame[column].map(
+                lambda v: "" if v is None or pd.isna(v) else f"{float(v):.0%}")
+        if frame[column].dtype == bool:  # checkboxes look editable; words don't
+            frame[column] = frame[column].map({True: "Yes", False: "No"})
     for column in frame.columns:  # numeric columns keep their NaN so they stay numeric
         if frame[column].dtype == object:
             frame[column] = frame[column].map(
                 lambda v: "" if v is None or (isinstance(v, float) and pd.isna(v)) else _cell(v))
     frame.columns = [COLUMN_LABELS.get(c, c.replace("_", " ").capitalize()) for c in frame.columns]
     st.dataframe(frame, width="stretch", hide_index=True)
+
+
+def stats(items: list[tuple[str, str | None, str]]) -> None:
+    """A row of measured figures. Missing data shows as a quiet note, never a big placeholder."""
+    cells = []
+    for label, value, note in items:
+        if value is None:
+            body = f'<div class="rs-empty">{html.escape(note)}</div>'
+        else:
+            body = f'<div class="rs-value">{html.escape(value)}</div>'
+            if note:
+                body += f'<div class="rs-note">{html.escape(note)}</div>'
+        cells.append(f'<div><div class="rs-label">{html.escape(label)}</div>{body}</div>')
+    st.markdown(f'<div class="rs-stats">{"".join(cells)}</div>', unsafe_allow_html=True)
 
 
 @st.cache_resource(show_spinner="Loading the embedding model and index...")
@@ -118,7 +188,7 @@ def get_pipeline() -> RAGPipeline:
 
 
 def render_answer(result: RAGResult) -> None:
-    st.subheader(f"Answer · {MODE_LABELS[result.mode]}")
+    st.header(f"Answer · {MODE_LABELS[result.mode]}", anchor=False)
     for warning in result.warnings:
         st.warning(plain(warning))
     if result.status == "withheld":
@@ -133,7 +203,7 @@ def render_answer(result: RAGResult) -> None:
                    f"{plain(', '.join(result.invalid_citations))}")
 
     if result.mode == "shielded":
-        st.subheader("Document trust decisions")
+        st.header("Document trust decisions", anchor=False)
         table(result.decisions)
         for detection in result.detections:
             with st.expander(f"Injection flag: {detection['doc_id']}, score {detection['score']}"):
@@ -142,7 +212,7 @@ def render_answer(result: RAGResult) -> None:
         for record in result.quarantined:
             st.warning(plain(f"Quarantined {record['original_path']}: {record['reason']}"))
 
-    st.subheader("Sources cited")
+    st.header("Sources cited", anchor=False)
     if result.cited_doc_ids:
         titles = {c.doc_id: c.metadata["title"] for c in result.chunks}
         for doc_id in result.cited_doc_ids:
@@ -150,7 +220,7 @@ def render_answer(result: RAGResult) -> None:
     else:
         st.info("The answer did not cite any retrieved source.")
 
-    st.subheader("Chunks used in the answer")
+    st.header("Chunks used in the answer", anchor=False)
     for chunk in result.chunks:
         label = f"#{chunk.rank} · {chunk.doc_id} · similarity {chunk.similarity:.3f} · {chunk.trust}"
         with st.expander(label):
@@ -159,30 +229,28 @@ def render_answer(result: RAGResult) -> None:
                     expanded=False)
 
 
-def render_events(result: RAGResult | None, log_path) -> None:
-    st.subheader("Security events")
-    if result and result.mode == "baseline":
+def render_events(result: RAGResult, log_path) -> None:
+    if result.mode == "baseline":
         st.caption("Baseline mode has no security controls. Trust labels are recorded "
                    "but do not affect retrieval or the answer.")
-    events = read_events(log_path, limit=10)
-    if not events:
-        st.info("No events logged yet. Ask a question to create one.")
-        return
+    events = [e for e in read_events(log_path, limit=50) if "query_id" in e][:10]
     table(events, ["timestamp", "shield_mode", "response_outcome", "withheld_reason",
                    "retrieved_doc_ids", "cited_doc_ids"])
-    with st.expander("All logged fields"):
+    if st.toggle("Show every logged field"):  # a toggle: this already sits in an expander
         table(events, ["timestamp", "query_id", "shield_mode", "response_outcome",
                        "withheld_reason", "retrieved_doc_ids", "context_doc_ids",
                        "detection_results", "conflicts", "quarantine_actions", "cited_doc_ids"])
 
 
-def ask_page(pipeline: RAGPipeline, mode: str, config: ShieldConfig) -> None:
-    st.title("Station 41 knowledge assistant")
-    st.caption("Fictional simulation. Not connected to any real company, system, or equipment.")
+def ask_page(pipeline: RAGPipeline) -> None:
+    with st.sidebar:
+        mode = st.radio("Mode", list(MODE_LABELS), format_func=MODE_LABELS.get)
+        config = shield_controls() if mode == "shielded" else ShieldConfig()
+    page_title("Assistant", "Station 41 knowledge assistant")
     with st.form("ask"):
         question = st.text_area("Question", placeholder="What should I do about alert W-217?",
                                 max_chars=2000)
-        submitted = st.form_submit_button(f"Ask ({MODE_LABELS[mode]})", type="primary")
+        submitted = st.form_submit_button(f"Ask with {SHORT_MODE[mode]}", type="primary")
     if submitted:
         try:
             with st.spinner("Retrieving and generating..."):
@@ -197,11 +265,12 @@ def ask_page(pipeline: RAGPipeline, mode: str, config: ShieldConfig) -> None:
             st.info(f"This answer came from {MODE_LABELS[result.mode]} with the settings in "
                     "place when it was asked. The sidebar has changed since; ask again to compare.")
         render_answer(result)
-    render_events(result, pipeline.settings.log_path)
+        with st.expander("Security log for recent questions"):
+            render_events(result, pipeline.settings.log_path)
 
 
 def documents_page(pipeline: RAGPipeline) -> None:
-    st.title("Documents")
+    page_title("Assistant", "Documents")
     documents, errors = load_corpus(pipeline.settings)
     if st.button("Re-index documents"):
         report, errors = pipeline.sync()
@@ -217,7 +286,7 @@ def documents_page(pipeline: RAGPipeline) -> None:
 
 
 def quarantine_page(pipeline: RAGPipeline) -> None:
-    st.title("Quarantine review")
+    page_title("Assistant", "Quarantine review")
     records = pipeline.shield.quarantine.records()
     if not records:
         st.info("No documents have been quarantined. The Shield moves a file here when it "
@@ -241,7 +310,7 @@ def quarantine_page(pipeline: RAGPipeline) -> None:
 
 
 def shield_controls() -> ShieldConfig:
-    st.subheader("Shield controls")
+    st.subheader("Shield controls", anchor=False)
     config = ShieldConfig(
         provenance=st.checkbox("1. Provenance", True),
         trust_retrieval=st.checkbox("2. Trust-based retrieval", True),
@@ -254,21 +323,58 @@ def shield_controls() -> ShieldConfig:
     return config
 
 
-def show_scene(scene: dict, verdict=None) -> None:
-    st.markdown(f"**Question:** {plain(scene['question'])}")
-    label = "Answer (withheld by the Shield)" if scene["status"] == "withheld" else "Answer"
-    st.markdown(f"**{label}:** {plain(scene['answer'])}")
-    if verdict:
-        verdict()
-    st.caption("Sources used")
-    table(scene["sources_used"])
+def page_title(eyebrow: str, title: str) -> None:
+    st.markdown(f'<div class="rs-eyebrow">{html.escape(eyebrow)}</div>', unsafe_allow_html=True)
+    st.title(title, anchor=False)
+
+
+def results_strip(summary: pd.DataFrame) -> None:
+    """Measured clear attack successes as proportion bars. Lower is better."""
+    rows = []
+    for row in headline(summary):
+        flag = f'<span>{html.escape(row["flag"])}</span>' if row["flag"] else ""
+        bars = ""
+        for name, key, color in (("Baseline", "baseline", palette.BASELINE),
+                                 ("RAG Shield", "shield", palette.SHIELD)):
+            hits, trials = row[key]
+            share = 100 * hits / trials if trials else 0
+            bars += (f'<div class="rs-bar"><div class="rs-bar-name">{name}</div>'
+                     f'<div class="rs-bar-track" role="img" aria-label="{name}: {hits} of {trials}">'
+                     f'<div class="rs-bar-fill" style="width:{share:.1f}%;background:{color}"></div></div>'
+                     f'<div class="rs-bar-count">{hits} of {trials}</div></div>')
+        rows.append(f'<div><div class="rs-row-title">{html.escape(row["title"])}{flag}</div>{bars}</div>')
+    st.markdown(f'<div class="rs-results">{"".join(rows)}</div>', unsafe_allow_html=True)
+
+
+def answer_block(scene: dict, nested: bool = False) -> None:
+    """nested=True when already inside an expander, which Streamlit cannot nest."""
+    if scene["status"] == "withheld":
+        st.caption("Withheld by RAG Shield")
+    # Untrusted model output: escaped Markdown only, never inside raw HTML.
+    st.markdown(plain(scene["answer"]))
+    if nested:
+        st.caption("Sources used")
+        table(scene["sources_used"])
+    else:
+        with st.expander("Sources used"):
+            table(scene["sources_used"])
+
+
+def verdict(succeeded: bool, text: str) -> None:
+    """Outcome callout. Icon and wording carry the meaning, not color alone."""
+    if succeeded:
+        st.error(f"**Attack succeeded.** {text}", icon=":material/gpp_bad:")
+    else:
+        st.success(f"**Attack stopped.** {text}", icon=":material/verified_user:")
 
 
 def demo_page(pipeline: RAGPipeline) -> None:
-    st.title("Final demonstration")
-    st.caption("Runs on a disposable copy of the data. Outcomes are whatever the run produces. "
-               "Both modes run automatically; the sidebar settings do not apply here.")
-    if st.button("Run demonstration", type="primary"):
+    page_title("Live comparison · fictional Station 41", "Final demonstration")
+    intro, action = st.columns([4, 1], vertical_alignment="center")
+    intro.caption("Same question, same documents, same model. Runs on a disposable copy of the "
+                  "data and shows whatever the run produces.")
+    if action.button("Run again", icon=":material/replay:", help="About 1 minute. Needs Ollama.",
+                     width="stretch"):
         status = st.status("Running the demonstration. This takes a few minutes.", expanded=True)
         try:
             with status:
@@ -281,34 +387,49 @@ def demo_page(pipeline: RAGPipeline) -> None:
         st.info("The demonstration has not been run yet.")
         return
     report = json.loads(DEMO_OUTPUT.read_text(encoding="utf-8"))
-    st.caption(f"Last run: {when(report['generated_at'])} with {report['model']}")
 
-    st.header("A. Normal operation")
-    show_scene(report["scene_a_normal_operation"])
+    unprotected = report["scene_b_poisoning_without_shield"]
+    shielded = report["scene_c_shield_enabled"]
+    st.header("A poisoned bulletin is uploaded. A technician asks:", anchor=False)
+    st.markdown(f"> {plain(unprotected['question'])}")
+    st.caption(f"Run {when(report['generated_at'])} with {report['model']}")
+    left, right = st.columns(2, gap="medium")
+    with left.container(border=True):
+        st.badge("Unprotected", color="orange", icon=":material/warning:")
+        st.subheader("Baseline RAG", anchor=False)
+        verdict(unprotected["attack_succeeded"], sentence(outcome_text(unprotected["scored_outcome"])))
+        answer_block(unprotected)
+    with right.container(border=True):
+        st.badge("Protected", color="blue", icon=":material/shield:")
+        st.subheader("RAG Shield", anchor=False)
+        verdict(not shielded["attack_prevented"], sentence(outcome_text(shielded["scored_outcome"])))
+        answer_block(shielded)
+        for record in shielded["quarantined"]:
+            st.info(plain(f"Quarantined {record['original_path']}: {record['reason']}"),
+                    icon=":material/inventory_2:")
 
-    st.header("B. Poisoned document, no Shield")
-    scene = report["scene_b_poisoning_without_shield"]
-    show_scene(scene, lambda: (st.error if scene["attack_succeeded"] else st.success)(
-        f"Attack {'succeeded' if scene['attack_succeeded'] else 'failed'}: "
-        f"{outcome_text(scene['scored_outcome'])}."))
+    summary_path = pipeline.settings.results_dir / "evaluation_summary.csv"
+    if summary_path.exists():
+        st.header("Across the full evaluation", anchor=False)
+        st.caption("Clear attack successes, lower is better. Measured on the same fictional "
+                   "station and model; details on the Evaluation page.")
+        results_strip(pd.read_csv(summary_path))
 
-    st.header("C. Same question, Shield on")
-    scene = report["scene_c_shield_enabled"]
-    show_scene(scene, lambda: (st.success if scene["attack_prevented"] else st.error)(
-        f"Attack {'prevented' if scene['attack_prevented'] else 'not prevented'}: "
-        f"{outcome_text(scene['scored_outcome'])}."))
-    st.subheader("Document trust decisions")
-    table(scene["trust_decisions"])
-    for warning in scene["warnings"]:
-        st.warning(plain(warning))
-    for record in scene["quarantined"]:
-        st.info(plain(f"Quarantined {record['original_path']}: {record['reason']}"))
-    st.subheader("Security event log")
-    table(report["security_event_log"])
+    st.header("Evidence from this run", anchor=False)
+    with st.expander("Why the Shield excluded the bulletin"):
+        for warning in shielded["warnings"]:
+            st.warning(plain(warning))
+        table(shielded["trust_decisions"])
+    with st.expander("Security event log for this run"):
+        table(report["security_event_log"])
+    with st.expander("Control: a normal question with no attack"):
+        normal = report["scene_a_normal_operation"]
+        st.markdown(f"> {plain(normal['question'])}")
+        answer_block(normal, nested=True)
 
 
 def evaluation_page(pipeline: RAGPipeline) -> None:
-    st.title("Evaluation results")
+    page_title("Measured results", "Evaluation results")
     results = pipeline.settings.results_dir
     summary_path = results / "evaluation_summary.csv"
     if not summary_path.exists():
@@ -318,8 +439,9 @@ def evaluation_page(pipeline: RAGPipeline) -> None:
     st.caption("Measured on a fictional simulation with a small local model. These are laboratory "
                "results, not real-world risk estimates.")
     summary = pd.read_csv(summary_path)
-    st.plotly_chart(attack_success_chart(summary), width="stretch")
-    st.subheader("Summary table")
+    st.plotly_chart(attack_success_chart(summary), width="stretch", theme=None,
+                    config={"displayModeBar": False})
+    st.header("Summary table", anchor=False)
     st.caption("Attack success and its interval are percentages of attempts.")
     table(summary, SUMMARY_COLUMNS)
     with st.expander("All summary columns"):
@@ -328,8 +450,9 @@ def evaluation_page(pipeline: RAGPipeline) -> None:
     if ablation_path.exists():
         ablation = pd.read_csv(ablation_path)
         if ablation.config.nunique() > 2:
-            st.subheader("What each control contributes")
-            st.plotly_chart(ablation_chart(ablation), width="stretch")
+            st.header("What each control contributes", anchor=False)
+            st.plotly_chart(ablation_chart(ablation), width="stretch", theme=None,
+                    config={"displayModeBar": False})
             with st.expander("Table view"):
                 table(ablation)
     with st.expander("Download raw files"):
@@ -337,64 +460,80 @@ def evaluation_page(pipeline: RAGPipeline) -> None:
             st.download_button(path.name, path.read_bytes(), path.name, "text/csv")
 
 
-def seconds_text(stats: dict) -> str:
-    return "none yet" if stats["mean_seconds"] is None else f"{stats['mean_seconds']:.2f}s"
+def seconds_text(figures: dict) -> str | None:
+    return None if figures["mean_seconds"] is None else f"{figures['mean_seconds']:.2f}s"
 
 
 def watch_page(pipeline: RAGPipeline) -> None:
-    st.title("Watch")
+    page_title("Monitoring", "Watch")
     st.caption("The Shield's monitoring stage: integrity scans, alerts, unusual retrieval "
                "patterns, and purge-and-retest before the assistant goes back into use.")
     settings = pipeline.settings
     metrics = governance_metrics(settings)
     procedures = metrics["verified_procedures"]
     detect, contain = metrics["time_to_detect_unauthorized_change"], metrics["time_to_quarantine"]
-    cols = st.columns(4)
-    cols[0].metric("Procedures verified", f"{procedures['verified']} of {procedures['registered']}",
-                   help="Named owner, approved, and unchanged since sign-off.")
-    cols[1].metric("Mean time to detect a change", seconds_text(detect),
-                   help=f"{detect['count']} unauthorized changes detected.")
-    cols[2].metric("Mean time to quarantine", seconds_text(contain),
-                   help=f"{contain['count']} documents quarantined.")
-    cols[3].metric("Alerts", sum(metrics["alerts_by_kind"].values()))
+    stats([
+        ("Procedures verified", f"{procedures['verified']} of {procedures['registered']}",
+         "Named owner, approved, unchanged since sign-off"),
+        ("Mean time to detect a change", seconds_text(detect),
+         f"Over {detect['count']} detected changes" if detect["count"]
+         else "No unauthorized changes detected yet"),
+        ("Mean time to quarantine", seconds_text(contain),
+         f"Over {contain['count']} quarantined documents" if contain["count"]
+         else "Nothing quarantined yet"),
+    ])
     st.caption(metrics["caveat"])
     for row in procedures["unverified"]:
         st.error(plain(f"{row['doc_id']} {row['filename']}: {', '.join(row['problems'])}"))
 
-    left, right = st.columns(2)
-    if left.button("Run integrity scan"):
-        report = integrity_scan(pipeline)
+    actions = st.columns([1, 1, 2])
+    if actions[0].button("Run integrity scan", icon=":material/fact_check:",
+                         help="Re-checks every document now. Anything tampered or flagged "
+                              "is moved to Quarantine, where it can be restored."):
+        st.session_state["scan_report"] = integrity_scan(pipeline)
         st.session_state.pop("result", None)
-        (st.warning if report.quarantined else st.success)(
-            f"Scanned {report.documents_scanned} documents in {report.seconds:.2f}s. "
-            f"Tampered: {len(report.tampered)}. Flagged uploads: {len(report.flagged_uploads)}. "
-            f"Quarantined: {len(report.quarantined)}.")
-    if right.button("Purge index and retest", type="primary"):
-        with st.spinner("Scanning, rebuilding the index, and re-asking the legitimate "
-                        "questions. This takes about a minute."):
-            try:
-                report = purge_and_retest(pipeline)
-            except LLMError as exc:
-                st.error(str(exc))
-                report = None
-        st.session_state.pop("result", None)
-        if report:
-            verdict = "passed: safe to go back into use" if report["passed"] else "failed: keep offline"
-            (st.success if report["passed"] else st.error)(
-                f"Retest {verdict}. {report['legitimate_correct']} of {report['legitimate_total']} "
-                f"legitimate answers correct; {len(report['unverified_procedures'])} unverified "
-                f"procedures. Index now holds {report['indexed_by_trust']}.")
-            table([{k: r[k] for k in ("test_id", "status", "correct", "cited")}
-                   for r in report["results"]])
+    with actions[1].popover("Purge and retest", icon=":material/restart_alt:"):
+        st.markdown("Scans and quarantines anything suspicious, deletes and rebuilds the "
+                    "search index, then re-asks the 10 legitimate questions with the Shield on. "
+                    "Takes about a minute and needs Ollama running.")
+        if st.button("Purge and retest now", type="primary"):
+            with st.spinner("Scanning, rebuilding the index, and re-asking the legitimate "
+                            "questions..."):
+                try:
+                    st.session_state["retest_report"] = purge_and_retest(pipeline)
+                except LLMError as exc:
+                    st.error(str(exc))
+            st.session_state.pop("result", None)
 
-    st.subheader("Alerts")
+    scan = st.session_state.get("scan_report")
+    if scan:
+        (st.warning if scan.quarantined else st.success)(
+            f"Integrity scan: {scan.documents_scanned} documents checked in {scan.seconds:.2f}s. "
+            f"{len(scan.tampered)} tampered, {len(scan.flagged_uploads)} uploads flagged, "
+            f"{len(scan.quarantined)} quarantined.",
+            icon=":material/fact_check:")
+    retest = st.session_state.get("retest_report")
+    if retest:
+        outcome = ("passed. Safe to put back into use." if retest["passed"]
+                   else "failed. Keep the assistant offline.")
+        (st.success if retest["passed"] else st.error)(
+            f"**Retest {outcome}** {retest['legitimate_correct']} of {retest['legitimate_total']} "
+            f"legitimate answers correct, {len(retest['unverified_procedures'])} unverified "
+            "procedures.",
+            icon=":material/verified_user:" if retest["passed"] else ":material/gpp_bad:")
+        with st.expander("Retest answers"):
+            table([{k: r[k] for k in ("test_id", "status", "correct", "cited")}
+                   for r in retest["results"]])
+
+    st.header("Alerts", anchor=False)
     found = alerts(settings.log_path)[::-1]
     if found:
         table(found, ["timestamp", "kind", "detail", "detected_by", "changed_at"])
     else:
-        st.info("No alerts yet.")
+        st.info("No alerts yet. They appear here when a scan or a question finds tampering, "
+                "a flagged upload, or a document showing up in unusually many answers.")
 
-    st.subheader("Retrieval concentration")
+    st.header("Retrieval concentration", anchor=False)
     st.caption("Share of recent RAG Shield questions that retrieved each document, counting "
                "only questions asked while it was indexed. An unapproved document in half or "
                "more, or an approved one whose share jumps, raises an alert.")
@@ -404,7 +543,7 @@ def watch_page(pipeline: RAGPipeline) -> None:
     else:
         st.info("Needs at least five RAG Shield questions in the log.")
 
-    st.subheader("Drill")
+    st.header("Drill", anchor=False)
     st.caption("Runs on a disposable copy of the data: an unauthorized edit, a poisoned "
                "upload, purge and retest, and a document built to evade the content rules.")
     if st.button("Run drill (about 2 minutes)"):
@@ -440,7 +579,7 @@ def watch_page(pipeline: RAGPipeline) -> None:
 
 
 def review_page() -> None:
-    st.title("Review verdicts")
+    page_title("Group work", "Review verdicts")
     st.caption("Confirm or change each proposed verdict. Verdicts decide the attack success "
                "numbers, so confirm them as a group, then rebuild the summaries.")
     path = summaries.REVIEW_PATH
@@ -474,7 +613,7 @@ def review_page() -> None:
         render_review_item(items[position], reviewer, path, entries)
 
     st.divider()
-    st.subheader("Rebuild results")
+    st.header("Rebuild results", anchor=False)
     st.caption("Recomputes the summaries, charts, and FAIR export from the verdicts above.")
     if st.button("Rebuild summaries and FAIR export"):
         summaries.main()
@@ -486,7 +625,7 @@ def review_page() -> None:
 def render_review_item(item: dict, reviewer: str, path, entries: list[dict]) -> None:
     entry, case = item["entry"], item["case"]
     setup = "Baseline" if entry["config"] == "baseline" else "RAG Shield"
-    st.subheader(f"{entry['test_id']} · {setup} · {humanize(item['scenario'])}")
+    st.header(f"{entry['test_id']} · {setup} · {humanize(item['scenario'])}", anchor=False)
     st.markdown(f"**Question:** {plain(case.get('question', ''))}")
     st.markdown(f"**Safe behavior:** {plain(case.get('expected_safe_behavior', ''))}")
     st.markdown(f"**Attack counts when:** {plain(case.get('attack_success_criteria', ''))}")
@@ -499,23 +638,27 @@ def render_review_item(item: dict, reviewer: str, path, entries: list[dict]) -> 
             wrap_lines=True)
     with st.expander("Clean control answer (same question, no attack document)"):
         st.code(item["control_answer"] or "", language=None, wrap_lines=True)
-    st.caption(f"Rule-based outcome: {humanize(item['rule_outcome'] or 'unknown')} · "
-               f"proposed verdict: {entry.get('proposed_verdict', entry['verdict'])} "
-               f"({entry.get('reviewed_by', '')})")
-    for confirmation in entry.get("confirmations", []):
-        st.info(plain(f"{confirmation['reviewer']} confirmed {confirmation['verdict']} "
-                      f"at {when(confirmation['at'])}"
-                      + (f": {confirmation['note']}" if confirmation["note"] else "")))
+    # Hidden until opened, so each reviewer decides before seeing anyone else's call.
+    with st.expander("Compare: proposed verdict, rule-based score, and other reviewers"):
+        st.markdown(plain(f"Proposed verdict: {entry.get('proposed_verdict', entry['verdict'])} "
+                          f"({entry.get('reviewed_by', '')})"))
+        st.markdown(plain(f"Rule-based outcome: {humanize(item['rule_outcome'] or 'unknown')}"))
+        for confirmation in entry.get("confirmations", []):
+            st.markdown(plain(f"{confirmation['reviewer']} recorded {confirmation['verdict']} "
+                              f"at {when(confirmation['at'])}"
+                              + (f": {confirmation['note']}" if confirmation["note"] else "")))
     key = f"{entry['test_id']}|{entry['config']}"
     with st.form(f"verdict-{key}"):
-        verdict = st.radio("Verdict", verdicts.VERDICTS,
-                           index=verdicts.VERDICTS.index(entry["verdict"]), horizontal=True,
-                           captions=[verdicts.VERDICT_HELP[v] for v in verdicts.VERDICTS])
-        note = st.text_input("Note (optional; please explain if you change the verdict)")
-        if st.form_submit_button("Confirm", type="primary"):
+        # Nothing preselected: each reviewer makes their own call, then compares.
+        choice = st.radio("Your verdict", verdicts.VERDICTS, index=None,
+                          captions=[verdicts.VERDICT_HELP[v] for v in verdicts.VERDICTS])
+        note = st.text_input("Note", help="Required if your verdict differs from the proposal.")
+        if st.form_submit_button("Record verdict", type="primary"):
             try:
+                if choice is None:
+                    raise ValueError("Choose a verdict first.")
                 verdicts.confirm(entries, entry["test_id"], entry["config"],
-                                 entry["answer_sha256"], verdict, reviewer, note)
+                                 entry["answer_sha256"], choice, reviewer, note)
                 verdicts.save(path, entries)
                 st.rerun()
             except ValueError as exc:
@@ -523,36 +666,38 @@ def render_review_item(item: dict, reviewer: str, path, entries: list[dict]) -> 
 
 
 def main() -> None:
+    st.markdown(STYLE, unsafe_allow_html=True)
+    st.logo(str(LOGO), size="large")
     try:
         pipeline = get_pipeline()
     except Exception as exc:
         st.error(f"Could not start: {exc}")
         st.stop()
+
+    def page(render, title: str, slug: str, icon: str, default: bool = False) -> st.Page:
+        return st.Page(lambda: render(pipeline), title=title, url_path=slug, icon=icon,
+                       default=default)
+
+    # Real navigation: each page has its own URL, so a refresh mid-talk stays put.
+    navigation = st.navigation({
+        "Presentation": [
+            page(demo_page, "Demo", "demo", ":material/play_circle:", default=True),
+            page(evaluation_page, "Evaluation", "evaluation", ":material/bar_chart:"),
+            page(watch_page, "Watch", "watch", ":material/monitor_heart:"),
+        ],
+        "Assistant": [
+            page(ask_page, "Ask", "ask", ":material/chat:"),
+            page(documents_page, "Documents", "documents", ":material/description:"),
+            page(quarantine_page, "Quarantine", "quarantine", ":material/inventory_2:"),
+        ],
+        "Group work": [
+            page(lambda _: review_page(), "Review verdicts", "review", ":material/rule:"),
+        ],
+    })
+    navigation.run()  # page-specific sidebar controls render first, global notes after
     with st.sidebar:
-        st.header("RAG Shield")
-        page = st.radio("Page", ["Ask", "Documents", "Quarantine", "Watch", "Evaluation",
-                                 "Review verdicts", "Demo"])
-        mode, config = "baseline", ShieldConfig()
-        if page == "Ask":
-            mode = st.radio("Mode", list(MODE_LABELS), format_func=MODE_LABELS.get)
-            if mode == "shielded":
-                config = shield_controls()
-        st.caption(f"Model: {pipeline.settings.model_label}")
-        st.caption(f"Top-k: {pipeline.settings.top_k}")
-    if page == "Ask":
-        ask_page(pipeline, mode, config)
-    elif page == "Documents":
-        documents_page(pipeline)
-    elif page == "Quarantine":
-        quarantine_page(pipeline)
-    elif page == "Watch":
-        watch_page(pipeline)
-    elif page == "Evaluation":
-        evaluation_page(pipeline)
-    elif page == "Review verdicts":
-        review_page()
-    else:
-        demo_page(pipeline)
+        st.caption(f"Model: {pipeline.settings.model_label} · Top-k: {pipeline.settings.top_k}")
+        st.caption("Fictional simulation. Not connected to any real company or system.")
 
 
 main()

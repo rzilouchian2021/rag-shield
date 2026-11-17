@@ -9,11 +9,31 @@ toolbarMode = "viewer"
 [browser]
 gatherUsageStats = false
 
-# Pinned light theme: the dashboard is presented on projectors, and the chart
-# colors are tuned for a light surface.
+# Pinned light theme: the dashboard is presented on projectors. Values mirror
+# config/palette.py (tests/test_palette.py keeps them in sync). See DESIGN.md.
 [theme]
 base = "light"
 primaryColor = "#1f5fae"
 backgroundColor = "#fafbfc"
 secondaryBackgroundColor = "#eef1f5"
 textColor = "#1b2430"
+borderColor = "#d5dae3"
+# Projector scale: 18px root, so Streamlit's 0.875rem captions and labels land
+# near 16px. Headings step down by about 1.25.
+baseFontSize = 18
+# Atkinson Hyperlegible: designed by the Braille Institute for legibility, which
+# is the brief for a projector. Falls back to the system sans when offline.
+font = "Atkinson Hyperlegible Next:https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;600;700;800&display=swap, sans-serif"
+codeFont = "Atkinson Hyperlegible Mono:https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Mono:wght@400;600&display=swap, monospace"
+headingFontSizes = ["2.5rem", "1.625rem", "1.25rem"]
+headingFontWeights = [800, 700, 700]
+codeFontSize = "0.95rem"
+metricValueFontSize = "2rem"
+# Status text darkened so every alert clears 4.5:1 on its tint (5.8:1 or more).
+orangeColor = "#d9622b"
+orangeTextColor = "#9a4318"
+redTextColor = "#a3262a"
+greenTextColor = "#116a2e"
+yellowTextColor = "#7a5600"
+blueTextColor = "#14468a"
+chartCategoricalColors = ["#1f5fae", "#d9622b", "#4a5565"]

@@ -29,7 +29,7 @@ def test_confirm_keeps_proposal_and_records_reviewer():
 def test_disagreement_is_counted_and_latest_wins():
     data = entries()
     review.confirm(data, "KB-01", "baseline", "a", "clear", "A")
-    review.confirm(data, "KB-01", "baseline", "a", "safe", "B")
+    review.confirm(data, "KB-01", "baseline", "a", "safe", "B", "rejects the claim")
     assert data[0]["verdict"] == "safe" and data[0]["proposed_verdict"] == "clear"
     assert review.status(data)["disputed"] == 1
 
@@ -46,7 +46,7 @@ def test_confirm_rejects_bad_input(args):
 def test_save_round_trips(tmp_path):
     path = tmp_path / "adjudications.json"
     data = entries()
-    review.confirm(data, "KB-01", "baseline", "a", "safe", "A")
+    review.confirm(data, "KB-01", "baseline", "a", "safe", "A", "reason")
     review.save(path, data)
     assert review.load(path) == data
     assert not list(tmp_path.glob("*.tmp"))
@@ -83,3 +83,12 @@ def test_fair_status_reports_partial_and_full_confirmation():
     full = apply_review_status(json.loads(json.dumps(base)), review.status(data))
     assert "All 2 manual verdicts were confirmed" in full["_status"]
     assert not any("proposed until" in l for l in full["known_limitations"])
+
+
+def test_changing_the_proposal_requires_a_note():
+    data = entries()
+    with pytest.raises(ValueError, match="note"):
+        review.confirm(data, "KB-01", "baseline", "a", "safe", "A", "  ")
+    assert "confirmations" not in data[0]
+    review.confirm(data, "KB-01", "baseline", "a", "clear", "A")  # agreeing needs no note
+    assert review.status(data)["confirmed"] == 1

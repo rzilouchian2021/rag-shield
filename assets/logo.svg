@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="220" height="40" viewBox="0 0 220 40" role="img" aria-label="RAG Shield">
+  <path d="M18 3 L32 8 V19 C32 28 26 34 18 37 C10 34 4 28 4 19 V8 Z" fill="#1f5fae"/>
+  <path d="M11.5 19.5 L16 24 L25 14.5" fill="none" stroke="#fafbfc" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="42" y="27" font-family="Atkinson Hyperlegible Next, Source Sans, sans-serif" font-size="21" font-weight="800" letter-spacing="-0.3" fill="#1b2430">RAG Shield</text>
+</svg>

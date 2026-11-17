@@ -57,7 +57,11 @@ def confirm(entries: list[dict], test_id: str, config: str, answer_sha256: str,
         raise ValueError("A reviewer name is required.")
     for entry in entries:
         if (entry["test_id"], entry["config"], entry["answer_sha256"]) == (test_id, config, answer_sha256):
-            entry.setdefault("proposed_verdict", entry["verdict"])
+            proposed = entry.get("proposed_verdict", entry["verdict"])
+            if verdict != proposed and not note.strip():
+                raise ValueError(f"Add a note explaining why this differs from the proposed "
+                                 f"verdict ({proposed}).")
+            entry["proposed_verdict"] = proposed
             entry.setdefault("confirmations", []).append({
                 "reviewer": reviewer.strip(), "verdict": verdict, "note": note.strip(),
                 "at": datetime.now(timezone.utc).isoformat()})

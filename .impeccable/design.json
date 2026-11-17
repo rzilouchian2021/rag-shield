@@ -1,0 +1,212 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-17T06:13:50.484527+00:00",
+  "title": "Design System: RAG Shield",
+  "extensions": {
+    "colorMeta": {
+      "shield-blue": {
+        "role": "primary",
+        "displayName": "Shield Blue",
+        "canonical": "#1f5fae",
+        "tonalRamp": [
+          "#0c2646",
+          "#133968",
+          "#194c8b",
+          "#1f5fae",
+          "#5787c2",
+          "#8fafd6",
+          "#c7d7eb",
+          "#e9eff7"
+        ]
+      },
+      "exposure-orange": {
+        "role": "secondary",
+        "displayName": "Exposure Orange",
+        "canonical": "#d9622b",
+        "tonalRamp": [
+          "#572711",
+          "#823b1a",
+          "#ae4e22",
+          "#d9622b",
+          "#e28960",
+          "#ecb095",
+          "#f6d8ca",
+          "#fbefea"
+        ]
+      },
+      "projector-paper": {
+        "role": "neutral",
+        "displayName": "Projector Paper",
+        "canonical": "#fafbfc",
+        "tonalRamp": [
+          "#646465",
+          "#969797",
+          "#c8c9ca",
+          "#fafbfc",
+          "#fbfcfd",
+          "#fcfdfe",
+          "#fefefe",
+          "#feffff"
+        ]
+      },
+      "console-mist": {
+        "role": "neutral",
+        "displayName": "Console Mist",
+        "canonical": "#eef1f5",
+        "tonalRamp": [
+          "#5f6062",
+          "#8f9193",
+          "#bec1c4",
+          "#eef1f5",
+          "#f2f4f8",
+          "#f6f8fa",
+          "#fbfcfc",
+          "#fdfefe"
+        ]
+      },
+      "station-ink": {
+        "role": "neutral",
+        "displayName": "Station Ink",
+        "canonical": "#1b2430",
+        "tonalRamp": [
+          "#0b0e13",
+          "#10161d",
+          "#161d26",
+          "#1b2430",
+          "#545b64",
+          "#8d9298",
+          "#c6c8cb",
+          "#e8e9ea"
+        ]
+      },
+      "slate-note": {
+        "role": "neutral",
+        "displayName": "Slate Note",
+        "canonical": "#4a5565",
+        "tonalRamp": [
+          "#1e2228",
+          "#2c333d",
+          "#3b4451",
+          "#4a5565",
+          "#77808c",
+          "#a4aab2",
+          "#d2d4d8",
+          "#edeef0"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "One page title per page."
+      },
+      "figure": {
+        "displayName": "Figure",
+        "purpose": "Measured values in the stat row only."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "reduced",
+        "value": "0.01ms",
+        "purpose": "All motion collapses under prefers-reduced-motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "stats-column",
+        "value": "12rem"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one action a page exists for.",
+      "html": "<button class=\"ds-btn-primary\">Record verdict</button>",
+      "css": ".ds-btn-primary{background:#1f5fae;color:#fafbfc;border:1px solid #1f5fae;border-radius:.5rem;padding:.5rem 1rem;font:400 1rem 'Atkinson Hyperlegible Next',sans-serif}.ds-btn-primary:hover{background:#184f95}.ds-btn-primary:focus-visible{outline:2px solid #1f5fae;outline-offset:2px}"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Default for every other action.",
+      "html": "<button class=\"ds-btn-secondary\">Run integrity scan</button>",
+      "css": ".ds-btn-secondary{background:#fafbfc;color:#1b2430;border:1px solid #d5dae3;border-radius:.5rem;padding:.5rem 1rem;font:400 1rem 'Atkinson Hyperlegible Next',sans-serif}.ds-btn-secondary:hover{border-color:#1f5fae;color:#1f5fae}.ds-btn-secondary:focus-visible{outline:2px solid #1f5fae;outline-offset:2px}"
+    },
+    {
+      "name": "Verdict Callout",
+      "kind": "custom",
+      "description": "Outcome stated in words and an icon, side by side for Baseline and Shield.",
+      "html": "<div class=\"ds-verdict ds-bad\"><b>Attack succeeded.</b> The answer adopted the poisoned guidance.</div><div class=\"ds-verdict ds-good\"><b>Attack stopped.</b> The poisoned document never reached the model.</div>",
+      "css": ".ds-verdict{border-radius:.5rem;padding:.75rem 1rem;margin:.5rem 0;font:400 1rem 'Atkinson Hyperlegible Next',sans-serif}.ds-bad{background:#f9e6e6;color:#a3262a}.ds-good{background:#e6f4ea;color:#116a2e}"
+    },
+    {
+      "name": "Stat Row",
+      "kind": "custom",
+      "description": "Measured figures; quiet note when unmeasured.",
+      "html": "<div class=\"ds-stats\"><div><div class=\"ds-l\">Procedures verified</div><div class=\"ds-v\">6 of 6</div></div><div><div class=\"ds-l\">Mean time to quarantine</div><div class=\"ds-e\">Nothing quarantined yet</div></div></div>",
+      "css": ".ds-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(12rem,1fr));gap:.75rem 2rem;font-family:'Atkinson Hyperlegible Next',sans-serif}.ds-l{font-size:.875rem;font-weight:600;color:#4a5565}.ds-v{font-size:2rem;font-weight:700;color:#1b2430;font-variant-numeric:tabular-nums}.ds-e{color:#4a5565;padding-top:.5rem}"
+    },
+    {
+      "name": "Navigation Item",
+      "kind": "nav",
+      "refersTo": "nav-item-current",
+      "description": "Sidebar page link; current page on Console Mist.",
+      "html": "<a class=\"ds-nav ds-current\">Demo</a><a class=\"ds-nav\">Evaluation</a>",
+      "css": ".ds-nav{display:block;padding:.35rem .75rem;border-radius:.5rem;color:#1b2430;font:400 1rem 'Atkinson Hyperlegible Next',sans-serif;text-decoration:none}.ds-nav:hover{background:#eef1f5}.ds-current{background:#eef1f5;font-weight:600}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Evidence Room",
+    "overview": "A quiet, well-lit room where everything on the table is labeled, measured, and traceable. The Baseline-versus-Shield comparison outranks every other element, and legibility at projector distance outranks density.",
+    "keyCharacteristics": [
+      "Projector scale: 18px root, nothing that matters below about 16px.",
+      "One accent (Shield Blue) plus one story color (Exposure Orange), both with fixed meanings.",
+      "Measured figures shown large only when they exist; empty states stay quiet.",
+      "Status always stated in words and an icon, never by color alone.",
+      "Comparison first, evidence one click deeper in expanders."
+    ],
+    "rules": [
+      {
+        "name": "The Fixed Meaning Rule",
+        "body": "Shield Blue always means protected in data and act here in controls. Exposure Orange always means Baseline.",
+        "section": "colors"
+      },
+      {
+        "name": "The Earned Red Rule",
+        "body": "Danger styling appears only for a real security outcome.",
+        "section": "colors"
+      },
+      {
+        "name": "The Back Row Rule",
+        "body": "Anything that matters is 16px minimum in dark ink, never light gray.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat Table Rule",
+        "body": "Surfaces are flat at rest; emphasis comes from space and weight.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** take every color from `config/palette.py`, and update `.streamlit/config.toml` with it.",
+      "**Do** put the Baseline-versus-Shield comparison in the first screen of any page that has one, with detail in expanders below.",
+      "**Do** state outcomes in words with an icon: \"Attack succeeded\" or \"Attack stopped\", not just red or green.",
+      "**Do** show limitations and failures with the same visual weight as successes.",
+      "**Do** render untrusted text (model answers, document text) only as escaped Markdown or code, never inside raw HTML."
+    ],
+    "donts": [
+      "**Don't** use hacker or cyber aesthetics: neon on black, matrix green, glitch effects, skulls and padlocks.",
+      "**Don't** build SaaS marketing dashboards: hero metrics with gradient accents, vanity KPIs, celebratory confetti.",
+      "**Don't** fall back to the default untouched Streamlit demo look, where everything is the same weight and nothing guides the eye.",
+      "**Don't** make it an alarmist red-everywhere security dashboard that makes every state look like an emergency.",
+      "**Don't** let Streamlit's chart theme override chart styling (`st.plotly_chart(..., theme=None)`), and don't use Plotly's default gray text.",
+      "**Don't** preselect answers in review forms; reviewers decide first, then compare.",
+      "**Don't** use text smaller than about 16px for anything the room needs to read."
+    ]
+  }
+}
