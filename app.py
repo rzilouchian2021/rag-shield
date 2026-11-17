@@ -25,7 +25,8 @@ from evaluation.headline import headline
 from evaluation.charts import ablation_chart, attack_success_chart
 from src.ingestion import load_corpus
 from src.llm_client import LLMError
-from src.logging_utils import read_events
+from src import signoff
+from src.logging_utils import read_events, verify_log
 from src.monitoring import (alerts, all_events, governance_metrics, integrity_scan,
                             purge_and_retest, retrieval_concentration)
 from src.rag_pipeline import RAGPipeline, RAGResult
@@ -464,6 +465,55 @@ def seconds_text(figures: dict) -> str | None:
     return None if figures["mean_seconds"] is None else f"{figures['mean_seconds']:.2f}s"
 
 
+def signoff_section(settings) -> None:
+    st.header("Sign-off and security log", anchor=False)
+    summary = signoff.keyring_summary(settings.registry_path)
+    if not summary["enforced"]:
+        st.info("Signed sign-off is not enforced for this registry.")
+    elif summary["ok"]:
+        st.success(f"**Keyring verified.** Signed by the document-control trust root "
+                   f"(key {summary['root_key_id']}). A procedure counts as approved only with "
+                   f"{summary['min_signatures']} different approvers' signatures"
+                   + (", one from the team that owns it." if summary["owner_team_required"] else "."),
+                   icon=":material/verified_user:")
+    else:
+        st.error(f"**Keyring rejected:** {summary['problem']}. Nothing counts as approved "
+                 "until it is fixed.", icon=":material/gpp_bad:")
+    table([{k: r[k] for k in ("doc_id", "owner", "signed_off", "signers", "problems")}
+           for r in signoff.status_rows(settings.registry_path)])
+    if summary.get("approvers"):
+        with st.expander("Approvers and keys"):
+            table(summary["approvers"])
+            st.caption("Private keys are encrypted on disk in keys/, which is never committed. "
+                       "Adding, rotating or revoking a key needs the trust root's key: "
+                       "python -m src.signoff add-approver | rotate-key | revoke")
+
+    if st.button("Verify security log", icon=":material/link:",
+                 help="Checks every sealed entry: an edited, deleted, inserted or cut-off "
+                      "entry breaks the chain."):
+        st.session_state["log_check"] = verify_log(settings.log_path)
+    check = st.session_state.get("log_check")
+    if check:
+        note = (f" {check['unsealed_before_sealing']} older entries predate sealing and "
+                "can't be checked." if check["unsealed_before_sealing"] else "")
+        if check["ok"] and not check["sealed"]:
+            st.info(f"No sealed entries yet. Every new entry is sealed from now on.{note}")
+        elif check["ok"]:
+            st.success(f"**Security log verified.** {check['sealed']} sealed entries, "
+                       f"none changed, removed or inserted.{note}", icon=":material/verified_user:")
+        else:
+            st.error(f"**Security log failed verification.** {check['problems'][0]}",
+                     icon=":material/gpp_bad:")
+            with st.expander(f"All {len(check['problems'])} problems"):
+                st.markdown("\n".join(f"- {plain(p)}" for p in check["problems"]))
+
+    with st.expander("Deployment checks"):
+        st.caption("Files the assistant relies on, and whether its own account can change them. "
+                   "On a laptop it runs as you, so they are open. In production the assistant "
+                   "runs as a separate read-only account, and only document control can write.")
+        table(signoff.access_audit(settings), ["item", "path", "ok", "issue"])
+
+
 def watch_page(pipeline: RAGPipeline) -> None:
     page_title("Monitoring", "Watch")
     st.caption("The Shield's monitoring stage: integrity scans, alerts, unusual retrieval "
@@ -474,7 +524,7 @@ def watch_page(pipeline: RAGPipeline) -> None:
     detect, contain = metrics["time_to_detect_unauthorized_change"], metrics["time_to_quarantine"]
     stats([
         ("Procedures verified", f"{procedures['verified']} of {procedures['registered']}",
-         "Named owner, approved, unchanged since sign-off"),
+         "Named owner, signed by two approvers, unchanged since"),
         ("Mean time to detect a change", seconds_text(detect),
          f"Over {detect['count']} detected changes" if detect["count"]
          else "No unauthorized changes detected yet"),
@@ -507,10 +557,12 @@ def watch_page(pipeline: RAGPipeline) -> None:
 
     scan = st.session_state.get("scan_report")
     if scan:
-        (st.warning if scan.quarantined else st.success)(
+        (st.warning if scan.quarantined or scan.unsigned or not scan.log_check.get("ok")
+     else st.success)(
             f"Integrity scan: {scan.documents_scanned} documents checked in {scan.seconds:.2f}s. "
             f"{len(scan.tampered)} tampered, {len(scan.flagged_uploads)} uploads flagged, "
-            f"{len(scan.quarantined)} quarantined.",
+            f"{len(scan.quarantined)} quarantined, {len(scan.unsigned)} without a valid sign-off. "
+            f"Security log {'verified' if scan.log_check.get('ok') else 'FAILED verification'}.",
             icon=":material/fact_check:")
     retest = st.session_state.get("retest_report")
     if retest:
@@ -532,6 +584,8 @@ def watch_page(pipeline: RAGPipeline) -> None:
     else:
         st.info("No alerts yet. They appear here when a scan or a question finds tampering, "
                 "a flagged upload, or a document showing up in unusually many answers.")
+
+    signoff_section(settings)
 
     st.header("Retrieval concentration", anchor=False)
     st.caption("Share of recent RAG Shield questions that retrieved each document, counting "

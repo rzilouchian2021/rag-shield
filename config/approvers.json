@@ -1,0 +1,96 @@
+{
+  "_note": "Fictional approvers for a university simulation. Signed by the Operations Document Control trust root.",
+  "policy": {
+    "min_signatures": 2,
+    "owner_team_required": true
+  },
+  "approvers": [
+    {
+      "id": "ops-manager",
+      "name": "Operations Manager",
+      "role": "Approver",
+      "teams": [
+        "Station Operations",
+        "Operations Document Control"
+      ],
+      "status": "active",
+      "keys": [
+        {
+          "key_id": "b821ea89a5a344d7",
+          "public_key": "aEhz5QWzg9NbUB53+Sld/BW5s0dG5A5OQyVNjYbi7GY=",
+          "status": "active",
+          "created": "2026-11-17T19:47:19+00:00"
+        }
+      ]
+    },
+    {
+      "id": "shift-supervisor",
+      "name": "Senior Shift Supervisor",
+      "role": "Approver",
+      "teams": [
+        "Station Operations"
+      ],
+      "status": "active",
+      "keys": [
+        {
+          "key_id": "69a6b4d1ce148bf1",
+          "public_key": "09UJbwPYVV1hzoAcFK7PIn6IaWjR8Tzo/8jeipNi9+Q=",
+          "status": "active",
+          "created": "2026-11-17T19:47:19+00:00"
+        }
+      ]
+    },
+    {
+      "id": "reliability-lead",
+      "name": "Reliability Engineering Lead",
+      "role": "Approver",
+      "teams": [
+        "Reliability Engineering"
+      ],
+      "status": "active",
+      "keys": [
+        {
+          "key_id": "76642755f7885767",
+          "public_key": "qLTEH6GciFqMaRO3IfO0CKIWfmqR2IRLhW2f3pFT/CY=",
+          "status": "active",
+          "created": "2026-11-17T19:47:19+00:00"
+        }
+      ]
+    },
+    {
+      "id": "maintenance-lead",
+      "name": "Maintenance Planning Lead",
+      "role": "Approver",
+      "teams": [
+        "Maintenance Planning"
+      ],
+      "status": "active",
+      "keys": [
+        {
+          "key_id": "3a48d2ae0b859b8b",
+          "public_key": "S7evVkZaVpWhdPiChnmgebIwEhlNORN+ZyuwIfjg/uk=",
+          "status": "active",
+          "created": "2026-11-17T19:47:19+00:00"
+        }
+      ]
+    },
+    {
+      "id": "safety-officer",
+      "name": "Health and Safety Officer",
+      "role": "Approver",
+      "teams": [
+        "Health and Safety"
+      ],
+      "status": "active",
+      "keys": [
+        {
+          "key_id": "a02ed61a3d9830bd",
+          "public_key": "mHOo+95sMsJ4pWNiUuAON2hdRjoA3Cvro6Cc5pji410=",
+          "status": "active",
+          "created": "2026-11-17T19:47:19+00:00"
+        }
+      ]
+    }
+  ],
+  "root_signature": "Mq5L/ifAEnmsDyf1HoQh+Deyeozc/AO923rYEAbbqcANt2fsaWBjofh1Ne/JIM9KuQ1DqGs0Kqnp9PXFVLRjAw=="
+}

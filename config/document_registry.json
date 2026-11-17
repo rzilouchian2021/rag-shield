@@ -9,7 +9,25 @@
       "approval_status": "approved",
       "version": "1.0",
       "upload_timestamp": "2026-01-15T09:00:00+00:00",
-      "sha256": "d731cf07f0413f23fa8b7ac5bb313d21272ac3c1b25bac93acd453c26c4fbfbe"
+      "sha256": "d731cf07f0413f23fa8b7ac5bb313d21272ac3c1b25bac93acd453c26c4fbfbe",
+      "signatures": [
+        {
+          "approver": "ops-manager",
+          "key_id": "b821ea89a5a344d7",
+          "sha256": "d731cf07f0413f23fa8b7ac5bb313d21272ac3c1b25bac93acd453c26c4fbfbe",
+          "version": "1.0",
+          "signed_at": "2026-11-17T19:47:19+00:00",
+          "signature": "GsdqbbaeWxgizpWJEKXGzEryRzeC6DVw0q+6ANb1FWaEmrD0oxifxPk8X7kF5bnlGB7s3lvlobansIOcEcc+Aw=="
+        },
+        {
+          "approver": "reliability-lead",
+          "key_id": "76642755f7885767",
+          "sha256": "d731cf07f0413f23fa8b7ac5bb313d21272ac3c1b25bac93acd453c26c4fbfbe",
+          "version": "1.0",
+          "signed_at": "2026-11-17T19:47:19+00:00",
+          "signature": "GzSQHaDvP7Xq0bLP9bNGsgSWWOHu1pRVK8l/Jgn2Hz/ci4Xo4vLx0qP6GiQO+V2uFgaVDFpxvVCVklnaBq9xDQ=="
+        }
+      ]
     },
     {
       "doc_id": "DOC-002",
@@ -19,7 +37,25 @@
       "approval_status": "approved",
       "version": "1.0",
       "upload_timestamp": "2026-01-15T09:00:00+00:00",
-      "sha256": "7222bce6b5400426ad67997b40a71aafb259827c23423ae70060193c52ad1c69"
+      "sha256": "7222bce6b5400426ad67997b40a71aafb259827c23423ae70060193c52ad1c69",
+      "signatures": [
+        {
+          "approver": "reliability-lead",
+          "key_id": "76642755f7885767",
+          "sha256": "7222bce6b5400426ad67997b40a71aafb259827c23423ae70060193c52ad1c69",
+          "version": "1.0",
+          "signed_at": "2026-11-17T19:47:19+00:00",
+          "signature": "zsOhlDrAqKgJVkvwLmJw8f0v1G4id+JhPp1y6DF+uiPyOsEHTd1ARPlRgWCwYtnygvjZxRA/eIt7fBJqPjvJAQ=="
+        },
+        {
+          "approver": "ops-manager",
+          "key_id": "b821ea89a5a344d7",
+          "sha256": "7222bce6b5400426ad67997b40a71aafb259827c23423ae70060193c52ad1c69",
+          "version": "1.0",
+          "signed_at": "2026-11-17T19:47:19+00:00",
+          "signature": "qy/UzoDCdx/Lb+R9CbA/zYSS7FwZZigCsZEh/HWjBhPtlTkrhcyJMgjUpQUmmfRm5zHMMZ+bknLfGO0SDwsmAw=="
+        }
+      ]
     },
     {
       "doc_id": "DOC-003",
@@ -29,7 +65,25 @@
       "approval_status": "approved",
       "version": "1.0",
       "upload_timestamp": "2026-01-15T09:00:00+00:00",
-      "sha256": "8e2b6007cfc236bcd1c1f8f2d00e75c10c8dc8dd63dad6112466f24ca374cb43"
+      "sha256": "8e2b6007cfc236bcd1c1f8f2d00e75c10c8dc8dd63dad6112466f24ca374cb43",
+      "signatures": [
+        {
+          "approver": "shift-supervisor",
+          "key_id": "69a6b4d1ce148bf1",
+          "sha256": "8e2b6007cfc236bcd1c1f8f2d00e75c10c8dc8dd63dad6112466f24ca374cb43",
+          "version": "1.0",
+          "signed_at": "2026-11-17T19:47:19+00:00",
+          "signature": "sthj9g7cTvZRIMjiz2UF2VrlLlxqo5SMU63HN7Qiz6L2BThzaGHuHxL4cXjixXqkVC1kYjDwViklB2IHOlBiCg=="
+        },
+        {
+          "approver": "safety-officer",
+          "key_id": "a02ed61a3d9830bd",
+          "sha256": "8e2b6007cfc236bcd1c1f8f2d00e75c10c8dc8dd63dad6112466f24ca374cb43",
+          "version": "1.0",
+          "signed_at": "2026-11-17T19:47:19+00:00",
+          "signature": "lWZUAdWTubYmHrpvX3r+fLkLqj5uCOAnWI2ua3XhLzEpKRkuCBYLPN6mIYwyKkbGcri1QKU8V4Rt3o+3hOZgAw=="
+        }
+      ]
     },
     {
       "doc_id": "DOC-004",
@@ -39,7 +93,25 @@
       "approval_status": "approved",
       "version": "1.0",
       "upload_timestamp": "2026-01-15T09:00:00+00:00",
-      "sha256": "04269015b5933fd2c0878f67033028c6b113a3dcc4c84f6a6504322e1892ee50"
+      "sha256": "04269015b5933fd2c0878f67033028c6b113a3dcc4c84f6a6504322e1892ee50",
+      "signatures": [
+        {
+          "approver": "maintenance-lead",
+          "key_id": "3a48d2ae0b859b8b",
+          "sha256": "04269015b5933fd2c0878f67033028c6b113a3dcc4c84f6a6504322e1892ee50",
+          "version": "1.0",
+          "signed_at": "2026-11-17T19:47:19+00:00",
+          "signature": "eEC4hsHPLCpHjMdS6wZMFNv+nAsa0gbaTDCvcjeuK1rTqimwgIHz8buedCj2Hul1GOBJQ/DESLP3k7RQ3MlCDw=="
+        },
+        {
+          "approver": "ops-manager",
+          "key_id": "b821ea89a5a344d7",
+          "sha256": "04269015b5933fd2c0878f67033028c6b113a3dcc4c84f6a6504322e1892ee50",
+          "version": "1.0",
+          "signed_at": "2026-11-17T19:47:19+00:00",
+          "signature": "zyRM1yJigrYHP+vkll/eSuv3sICyzimoh6mzitRRcQz0DyywzMT34XDTNMGUhcMnL57EREtg35PZrC5GTBQNDg=="
+        }
+      ]
     },
     {
       "doc_id": "DOC-005",
@@ -49,7 +121,25 @@
       "approval_status": "approved",
       "version": "1.0",
       "upload_timestamp": "2026-01-15T09:00:00+00:00",
-      "sha256": "3289acc2a96f1b2683b8fa5940e3ca29d6fee95c6d56034a9b602f8a11ffb48d"
+      "sha256": "3289acc2a96f1b2683b8fa5940e3ca29d6fee95c6d56034a9b602f8a11ffb48d",
+      "signatures": [
+        {
+          "approver": "safety-officer",
+          "key_id": "a02ed61a3d9830bd",
+          "sha256": "3289acc2a96f1b2683b8fa5940e3ca29d6fee95c6d56034a9b602f8a11ffb48d",
+          "version": "1.0",
+          "signed_at": "2026-11-17T19:47:19+00:00",
+          "signature": "BkunROq8px0lpttq6ToUdRWAk4ux2QIbrPz4HRHUs40IKjaP4bdD3XmZcQQdNUqSjSQJrtvX0+O7AS0PVeaMAA=="
+        },
+        {
+          "approver": "ops-manager",
+          "key_id": "b821ea89a5a344d7",
+          "sha256": "3289acc2a96f1b2683b8fa5940e3ca29d6fee95c6d56034a9b602f8a11ffb48d",
+          "version": "1.0",
+          "signed_at": "2026-11-17T19:47:19+00:00",
+          "signature": "F9y63EGhxW5ffwqcfWb8clPqWQ9TDzGGS3R/VAUebNGK0UibuxoqlWi1hyKfsQO1bc1mFspcUzziSHg5fVuwAw=="
+        }
+      ]
     },
     {
       "doc_id": "DOC-006",
@@ -59,7 +149,25 @@
       "approval_status": "approved",
       "version": "1.0",
       "upload_timestamp": "2026-01-15T09:00:00+00:00",
-      "sha256": "6c0ca5ddc5bc9fe52176800dbb5a7df559045ae69889ed9bd654520ff6f57131"
+      "sha256": "6c0ca5ddc5bc9fe52176800dbb5a7df559045ae69889ed9bd654520ff6f57131",
+      "signatures": [
+        {
+          "approver": "reliability-lead",
+          "key_id": "76642755f7885767",
+          "sha256": "6c0ca5ddc5bc9fe52176800dbb5a7df559045ae69889ed9bd654520ff6f57131",
+          "version": "1.0",
+          "signed_at": "2026-11-17T19:47:19+00:00",
+          "signature": "l0k4cbVnJoP5um3ZGWkWl1inLvppfWKddnqR9EF72b9R0Gj6pQlCgZ8YeWTMfGfmxtIfYW0dKedbay6koTWXDQ=="
+        },
+        {
+          "approver": "maintenance-lead",
+          "key_id": "3a48d2ae0b859b8b",
+          "sha256": "6c0ca5ddc5bc9fe52176800dbb5a7df559045ae69889ed9bd654520ff6f57131",
+          "version": "1.0",
+          "signed_at": "2026-11-17T19:47:19+00:00",
+          "signature": "ZyHMto8ClCWnTsT7vSnv6ARSxq6FLOMNOwKourGF8dGQkM1ryL9aZrizplxp3EnTEGSgRBlnKgH2nO7W0j+WDg=="
+        }
+      ]
     }
   ]
 }

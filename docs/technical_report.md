@@ -60,6 +60,12 @@ An integrity scan, purge and retest, and governance metrics now cover the Watch 
 
 The first version of the retrieval concentration monitor missed its decoy and falsely alerted on a restored procedure. Its design was fixed, without changing thresholds, by measuring each document only while it was indexed. A validation planned in advance then caught 3 of 3 new decoys, with no alerts on 6 harmless uploads or the restored procedure. The margins were thin: one decoy alerted exactly at the threshold, and one harmless document came close.
 
+## Signed sign-off and sealed log
+
+Added after the evaluation, without changing the frozen rules. Full details are in `docs/phase8_signoff.md`.
+
+Approval now needs Ed25519 signatures from two different approvers, one from the owning team, checked against a keyring signed by a document-control root key. The security log is sealed with HMAC-SHA256 entry by entry. In a validation planned in advance, signed sign-off stopped 6 of the 7 approval attacks that beat the hash-only check, including editing both a procedure and its registry hash and forging signatures. It did not stop two colluding approvers, as expected. All 6 log-tampering attacks were detected. The project's 55 documents have identical trust labels with and without signatures, so the evaluation results above still apply. The keys are simulated on one laptop, which is the main gap from a real deployment.
+
 ## Limitations
 
 - Ten trials per set, one run per case at temperature 0, so intervals are a rough guide.
@@ -71,7 +77,7 @@ The first version of the retrieval concentration monitor missed its decoy and fa
 
 ## Recommendations
 
-1. Require two-person approval for changes to safety-critical procedures.
+1. Require two-person approval for changes to safety-critical procedures (prototyped in Phase 8, with keys on hardware tokens in a real deployment).
 2. Check newly approved documents against existing procedures.
 3. Restrict write access and separate draft content from approved content.
 4. Use human review rather than automatic quarantine until false alarms fall.

@@ -1,0 +1,140 @@
+{
+  "_note": "Fictional simulation. Expected outcomes were written down before running.",
+  "approval_attacks": [
+    {
+      "attack": "edit_file",
+      "description": "Edit an approved procedure",
+      "label_hash_only": "hash_mismatch",
+      "label_signed": "hash_mismatch",
+      "attacker_wins_hash_only": false,
+      "attacker_wins_signed": false,
+      "genuine_procedure_still_approved_signed": null,
+      "as_expected": true
+    },
+    {
+      "attack": "edit_file_and_registry",
+      "description": "Edit it and update its hash in the registry",
+      "label_hash_only": "approved",
+      "label_signed": "hash_mismatch",
+      "attacker_wins_hash_only": true,
+      "attacker_wins_signed": false,
+      "genuine_procedure_still_approved_signed": null,
+      "as_expected": true
+    },
+    {
+      "attack": "register_poison",
+      "description": "Add a fake procedure to the registry as approved",
+      "label_hash_only": "approved",
+      "label_signed": "unapproved",
+      "attacker_wins_hash_only": true,
+      "attacker_wins_signed": false,
+      "genuine_procedure_still_approved_signed": true,
+      "as_expected": true
+    },
+    {
+      "attack": "forged_signatures",
+      "description": "...and sign it with the attacker's own keys",
+      "label_hash_only": "approved",
+      "label_signed": "unapproved",
+      "attacker_wins_hash_only": true,
+      "attacker_wins_signed": false,
+      "genuine_procedure_still_approved_signed": true,
+      "as_expected": true
+    },
+    {
+      "attack": "add_key_to_keyring",
+      "description": "...and add the attacker's key to the keyring",
+      "label_hash_only": "approved",
+      "label_signed": "unapproved",
+      "attacker_wins_hash_only": true,
+      "attacker_wins_signed": false,
+      "genuine_procedure_still_approved_signed": false,
+      "as_expected": true
+    },
+    {
+      "attack": "one_insider",
+      "description": "One real approver signs the fake procedure",
+      "label_hash_only": "approved",
+      "label_signed": "unapproved",
+      "attacker_wins_hash_only": true,
+      "attacker_wins_signed": false,
+      "genuine_procedure_still_approved_signed": true,
+      "as_expected": true
+    },
+    {
+      "attack": "insider_plus_revoked",
+      "description": "One insider plus a revoked approver's key",
+      "label_hash_only": "approved",
+      "label_signed": "unapproved",
+      "attacker_wins_hash_only": true,
+      "attacker_wins_signed": false,
+      "genuine_procedure_still_approved_signed": true,
+      "as_expected": true
+    },
+    {
+      "attack": "two_insiders",
+      "description": "Two real approvers, one from the owning team, both sign it",
+      "label_hash_only": "approved",
+      "label_signed": "approved",
+      "attacker_wins_hash_only": true,
+      "attacker_wins_signed": true,
+      "genuine_procedure_still_approved_signed": true,
+      "as_expected": true
+    }
+  ],
+  "legitimate_update": {
+    "before_signing": "unapproved",
+    "after_one_signature": "unapproved",
+    "after_two_signatures": "approved",
+    "as_expected": true
+  },
+  "log_attacks": [
+    {
+      "attack": "edit_an_alert",
+      "description": "Change a tamper alert into a routine entry",
+      "clean_log_verified": true,
+      "detected": true,
+      "first_problem": "line 4: contents changed, or the entry was forged"
+    },
+    {
+      "attack": "delete_an_alert",
+      "description": "Delete the tamper alert",
+      "clean_log_verified": true,
+      "detected": true,
+      "first_problem": "line 4: does not follow the entry before it (entries deleted, reordered or inserted)"
+    },
+    {
+      "attack": "cut_off_newest",
+      "description": "Cut the newest entries off the end",
+      "clean_log_verified": true,
+      "detected": true,
+      "first_problem": "log ends at entry 2, but the head says entry 5 was written (newest entries removed)"
+    },
+    {
+      "attack": "insert_fake_entry",
+      "description": "Insert a fake entry",
+      "clean_log_verified": true,
+      "detected": true,
+      "first_problem": "line 3: unsealed entry added after sealing began"
+    },
+    {
+      "attack": "recompute_hashes",
+      "description": "Edit an entry and recompute a plain SHA-256 seal",
+      "clean_log_verified": true,
+      "detected": true,
+      "first_problem": "line 4: contents changed, or the entry was forged"
+    },
+    {
+      "attack": "delete_head_and_cut",
+      "description": "Delete the head file and cut entries off the end",
+      "clean_log_verified": true,
+      "detected": true,
+      "first_problem": "head file is missing or forged, so removal of the newest entries can't be ruled out"
+    }
+  ],
+  "project_corpus_labels_unchanged": {
+    "documents": 55,
+    "identical": true,
+    "differences": {}
+  }
+}

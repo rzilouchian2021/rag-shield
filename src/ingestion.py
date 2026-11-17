@@ -20,6 +20,7 @@ from pathlib import Path
 from pypdf import PdfReader
 
 from config.settings import Settings, load_settings
+from src import signoff
 
 ALLOWED_EXTENSIONS = {".txt", ".md", ".pdf"}
 MAX_FILE_BYTES = 10 * 1024 * 1024
@@ -79,13 +80,15 @@ def sha256_bytes(data: bytes) -> str:
 
 
 def load_registry(path: Path) -> dict[str, dict]:
+    """The effective registry. Where sign-off is enforced (src/signoff.py), an entry
+    counts as approved only with valid signatures, and its hash is the signed one."""
     if not path.exists():
         return {}
     try:
         entries = json.loads(path.read_text(encoding="utf-8"))["documents"]
     except (json.JSONDecodeError, KeyError) as exc:
         raise ValueError(f"Invalid document registry at {path}: {exc}") from exc
-    return {entry["filename"]: entry for entry in entries}
+    return signoff.apply(path, {entry["filename"]: entry for entry in entries})
 
 
 def safe_path(data_dir: Path, path: Path) -> Path:
@@ -239,10 +242,11 @@ def chunk_document(doc: Document, size: int, overlap: int) -> list[Chunk]:
 
 
 def approve_file(settings: Settings, filename: str) -> str:
-    """Simulated reviewer sign-off: record the file's current hash in the registry.
+    """Record the file's current hash in the registry for review.
 
-    A hash only proves the bytes match what was reviewed. It says nothing about
-    whether the reviewed content was accurate.
+    Where sign-off is enforced this is not approval on its own: two approvers must
+    then sign it (python -m src.signoff sign FILE --as ID). A hash only proves the
+    bytes match what was reviewed, not that the reviewed content was accurate.
     """
     path = (settings.data_dir / filename).resolve()
     safe_path(settings.data_dir, path)
@@ -264,7 +268,10 @@ def main() -> None:
     args = parser.parse_args()
     settings = load_settings()
     for filename in args.approve:
-        print(f"approved {filename}: {approve_file(settings, filename)[:12]}")
+        print(f"recorded {filename}: {approve_file(settings, filename)[:12]}")
+        if signoff.policy_for(settings.registry_path):
+            print("  not approved until two approvers sign it: "
+                  f"python -m src.signoff sign {filename} --as APPROVER")
     documents, errors = load_corpus(settings)
     for doc in documents:
         count = len(chunk_document(doc, settings.chunk_size_words, settings.chunk_overlap_words))

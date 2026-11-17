@@ -6,6 +6,8 @@
   without waiting for a question to retrieve it. Findings are quarantined.
 - Purge and retest: contain, wipe and rebuild the index, then re-ask the legitimate
   questions before the assistant goes back into use.
+- Sign-off and log checks: every scan also verifies approvers' signatures and the
+  keyring (src/signoff.py) and the log's seals (src/logging_utils.py).
 - Governance metrics: share of procedures with a verified owner and approval, mean
   time to detect an unauthorized change, and mean time to quarantine.
 
@@ -29,7 +31,8 @@ from statistics import mean, median
 from config.settings import Settings, load_settings
 from src.ingestion import (TRUST_APPROVED, TRUST_MODIFIED, load_corpus, load_registry,
                            sha256_bytes)
-from src.logging_utils import log_event
+from src import signoff
+from src.logging_utils import log_event, verify_log
 from src.shield import detect_injection
 
 # Retrieval concentration rule. A document's exposures are the shielded queries
@@ -206,7 +209,44 @@ class ScanReport:
     quarantined: list[dict] = field(default_factory=list)
     alerts: list[dict] = field(default_factory=list)
     errors: list[str] = field(default_factory=list)
+    unsigned: list[dict] = field(default_factory=list)
+    log_check: dict = field(default_factory=dict)
     seconds: float = 0.0
+
+
+def check_signoff_and_log(settings: Settings, report: ScanReport) -> None:
+    """Alert on approvals that lost their signatures, registry hash edits, and a broken log."""
+    for filename, entry in load_registry(settings.registry_path).items():
+        result = entry.get("signoff")
+        if not result:
+            continue
+        if not result["ok"] and entry.get("approval_status") in (
+                signoff.STATUS_UNSIGNED, signoff.STATUS_UNVERIFIABLE):
+            detail = "; ".join(result["problems"]) or "no valid sign-off"
+            report.unsigned.append({"doc_id": entry.get("doc_id"), "filename": filename,
+                                    "problems": result["problems"]})
+            alert = raise_alert(settings.log_path, "signoff_invalid",
+                                f"signoff:{filename}:{detail}",
+                                f"{filename} claims approval without a valid sign-off: {detail}",
+                                filename=filename, detected_by="integrity_scan")
+        elif result["ok"] and result["registry_hash_edited"]:
+            alert = raise_alert(settings.log_path, "registry_edited",
+                                f"registry:{filename}:{entry.get('sha256')}:{result['sha256']}",
+                                f"The registry's hash for {filename} was changed after sign-off; "
+                                "the signed hash is used", filename=filename,
+                                detected_by="integrity_scan")
+        else:
+            continue
+        if alert:
+            report.alerts.append(alert)
+    report.log_check = verify_log(settings.log_path)
+    if not report.log_check["ok"]:
+        first = report.log_check["problems"][0]
+        alert = raise_alert(settings.log_path, "log_tampered", f"log:{first}",
+                            f"Security log failed verification: {first}",
+                            problems=len(report.log_check["problems"]), detected_by="integrity_scan")
+        if alert:
+            report.alerts.append(alert)
 
 
 def integrity_scan(pipeline, quarantine: bool = True) -> ScanReport:
@@ -220,6 +260,7 @@ def integrity_scan(pipeline, quarantine: bool = True) -> ScanReport:
     start = time.perf_counter()
     documents, errors = load_corpus(settings)
     report = ScanReport(_now(), len(documents), errors=errors)
+    check_signoff_and_log(settings, report)  # before this scan writes to the log
     candidates: dict[str, str] = {}
 
     for doc in documents:
@@ -254,6 +295,8 @@ def integrity_scan(pipeline, quarantine: bool = True) -> ScanReport:
         "tampered": [t["filename"] for t in report.tampered],
         "flagged_uploads": [f["filename"] for f in report.flagged_uploads],
         "quarantined": [q["original_path"] for q in report.quarantined],
+        "unsigned": [u["filename"] for u in report.unsigned],
+        "log_verified": report.log_check.get("ok"),
         "seconds": report.seconds})
     return report
 
@@ -270,21 +313,25 @@ def _durations(pairs) -> dict:
 
 
 def procedure_status(settings: Settings) -> list[dict]:
-    """Each registered document: is its owner named, approved, and unchanged on disk?"""
+    """Each registered document: is its owner named, approved (signed where sign-off is
+    enforced), and unchanged on disk since the approved version?"""
     rows = []
     for filename, entry in load_registry(settings.registry_path).items():
         path = settings.data_dir / filename
         problems = []
         if not str(entry.get("owner", "")).strip():
             problems.append("no named owner")
+        result = entry.get("signoff") or {}
         if entry.get("approval_status") != "approved":
-            problems.append("not approved")
+            problems.append("not approved" if not result or result.get("ok")
+                            else "no valid sign-off: " + "; ".join(result.get("problems", [])))
         if not path.is_file():
             problems.append("file missing or quarantined")
         elif sha256_bytes(path.read_bytes()) != entry.get("sha256"):
             problems.append("changed since sign-off")
         rows.append({"doc_id": entry.get("doc_id", ""), "filename": filename,
-                     "owner": entry.get("owner", ""), "verified": not problems,
+                     "owner": entry.get("owner", ""), "signers": result.get("signers", []),
+                     "verified": not problems,
                      "problems": problems})
     return rows
 

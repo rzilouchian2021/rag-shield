@@ -6,3 +6,6 @@ __pycache__/
 storage/
 logs/*.jsonl
 .DS_Store
+keys/
+logs/*.head
+*.tmp

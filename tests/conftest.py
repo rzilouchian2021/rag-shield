@@ -31,3 +31,9 @@ def settings(tmp_path):
         Settings(), data_dir=tmp_path / "data", registry_path=tmp_path / "registry.json",
         chroma_path=tmp_path / "chroma", log_path=tmp_path / "events.jsonl",
     )
+
+
+@pytest.fixture(autouse=True)
+def isolated_log_key(tmp_path, monkeypatch):
+    """Each test seals its logs with its own key, never the project's."""
+    monkeypatch.setenv("RAG_SHIELD_LOG_KEY", str(tmp_path / "keys" / "log_hmac.key"))
