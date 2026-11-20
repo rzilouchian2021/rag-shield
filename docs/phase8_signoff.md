@@ -97,3 +97,9 @@ python -m src.signoff verify-log                check the security log's seals
 python -m src.signoff access | lock | unlock    deployment checks; read-only files
 python -m demo.validate_signoff                 rerun this validation
 ```
+
+## Recovery from a signed archive (optional)
+
+`RAGPipeline(..., archive_dir=...)` turns on recovery. When the Shield quarantines a procedure for a hash mismatch, `restore_signed_copy` (`src/monitoring.py`) puts back the archived copy, but only if the registry entry still has a valid two-person sign-off and the archived bytes match the signed hash exactly. The question is then answered again from the restored version, and a `document_restored` alert is raised. A tampered archive copy, or a procedure without a valid sign-off, is never restored.
+
+It is off by default, so the evaluation and the dashboard behave exactly as in the reported results. The employee portal (`portal/server.py`) turns it on, using the project's own signed files as the archive. In a real deployment the archive would be a separate read-only store.

@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Employee Portal · Field Assistant (simulation)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="disclaimer" role="note">
+    Fictional class simulation for a Cyber Risk Modeling project. Not affiliated with or endorsed by
+    The Williams Companies, Inc. All people, documents and procedures are invented.
+  </div>
+
+  <header class="topbar">
+    <a class="brand" href="#assistant">
+      <span class="wordmark">Williams</span>
+      <span class="brand-rule" aria-hidden="true"></span>
+      <span class="product">Employee Portal</span>
+    </a>
+    <nav class="topnav" aria-label="Portal sections">
+      <a href="#assistant" data-view="assistant">Field Assistant</a>
+      <a href="#procedures" data-view="procedures">Procedures</a>
+      <a href="#safety" data-view="safety">Safety</a>
+      <a href="#shift" data-view="shift">My shift</a>
+    </nav>
+    <div class="user">
+      <span class="avatar" aria-hidden="true">JR</span>
+      <span class="user-text"><strong>Jordan Reyes</strong><span>Field Technician · Station 41</span></span>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="side" aria-label="Station information">
+      <section class="side-block">
+        <h2>Today at Station 41</h2>
+        <dl class="facts">
+          <div><dt>Shift</dt><dd>Day, 06:00 to 18:00</dd></div>
+          <div><dt>Watch item</dt><dd>Compressor unit CX-7</dd></div>
+          <div><dt>Supervisor</dt><dd>Shift Supervisor, radio channel 2</dd></div>
+        </dl>
+      </section>
+      <section class="side-block">
+        <h2>Shared documents</h2>
+        <p class="side-note">Procedures and files anyone at the station can add. Select one to read it.</p>
+        <ul id="docs" class="docs"></ul>
+        <a class="side-link" href="#procedures">Share a document</a>
+      </section>
+    </aside>
+
+    <!-- Field Assistant -->
+    <section class="panel view" id="view-assistant" aria-labelledby="assistant-title">
+      <div class="panel-head">
+        <div>
+          <h1 id="assistant-title">Field Assistant</h1>
+          <p class="panel-sub">Answers from Station 41 procedures and shared documents.</p>
+        </div>
+        <button id="shield-toggle" class="shield-toggle" type="button" role="switch" aria-checked="true">
+          <span class="track" aria-hidden="true"><span class="thumb"></span></span>
+          <span class="toggle-text">RAG Shield <strong id="shield-state">On</strong></span>
+        </button>
+      </div>
+      <div id="empty" class="empty">
+        <p class="empty-lead">Ask about an alarm, an escalation step, or an inspection.</p>
+        <div class="suggestions" id="suggestions"></div>
+      </div>
+      <ol id="thread" class="thread" aria-live="polite"></ol>
+      <form id="ask" class="ask">
+        <label for="question" class="sr-only">Ask the Field Assistant</label>
+        <textarea id="question" rows="2" maxlength="2000"
+                  placeholder="Ask about a procedure, alarm or inspection"></textarea>
+        <div class="ask-actions">
+          <button type="submit" id="ask-button">Ask</button>
+          <button type="button" id="clear-chat" class="link-button">Clear chat</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Procedures library and upload -->
+    <section class="panel view" id="view-procedures" aria-labelledby="procedures-title" hidden>
+      <div class="panel-head">
+        <div>
+          <h1 id="procedures-title">Procedures and documents</h1>
+          <p class="panel-sub">Everything the Field Assistant can search.</p>
+        </div>
+        <label class="search">
+          <span class="sr-only">Filter documents</span>
+          <input id="filter" type="search" placeholder="Filter by title or ID">
+        </label>
+      </div>
+      <div class="panel-body">
+        <table class="doc-table">
+          <thead><tr><th>Document</th><th>ID</th><th>Type</th><th></th></tr></thead>
+          <tbody id="doc-rows"></tbody>
+        </table>
+        <p id="no-match" class="muted" hidden>No documents match that filter.</p>
+
+        <h2 class="section-title">Share a document</h2>
+        <p class="muted">Post a note, bulletin or field update for the team. Text or Markdown, up to 20,000 characters.</p>
+        <form id="upload" class="upload">
+          <label>Title<input id="upload-name" required maxlength="80" placeholder="e.g. CX-7 field notes"></label>
+          <label>Content<textarea id="upload-text" rows="6" required maxlength="20000"
+                    placeholder="Type or paste the document, or choose a file below"></textarea></label>
+          <div class="upload-row">
+            <label class="file-pick">Choose .md or .txt file
+              <input id="upload-file" type="file" accept=".md,.txt,text/plain,text/markdown">
+            </label>
+            <button type="submit" class="primary">Share document</button>
+          </div>
+          <p id="upload-status" class="form-status" role="status"></p>
+        </form>
+      </div>
+    </section>
+
+    <!-- Document reader -->
+    <section class="panel view" id="view-document" aria-labelledby="doc-title" hidden>
+      <div class="panel-head">
+        <div>
+          <a href="#procedures" class="back">All documents</a>
+          <h1 id="doc-title">Document</h1>
+          <p class="panel-sub" id="doc-meta"></p>
+        </div>
+        <button id="doc-ask" type="button" class="secondary">Ask the assistant about this</button>
+      </div>
+      <div class="panel-body">
+        <article id="doc-text" class="doc-text"></article>
+      </div>
+    </section>
+
+    <!-- Safety -->
+    <section class="panel view" id="view-safety" aria-labelledby="safety-title" hidden>
+      <div class="panel-head">
+        <div>
+          <h1 id="safety-title">Safety</h1>
+          <p class="panel-sub">Who to call, and where the emergency procedures are.</p>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="contact-list">
+          <div><h3>Shift Supervisor</h3><p>Radio channel 2. First call for any abnormal reading or alarm.</p></div>
+          <div><h3>Operations Control Desk</h3><p>Receives anomaly reports and coordinates engineering review.</p></div>
+          <div><h3>Emergency</h3><p>Follow the Emergency Response Procedure and your supervisor's direction.</p></div>
+        </div>
+        <h2 class="section-title">Emergency and escalation procedures</h2>
+        <ul id="safety-docs" class="link-list"></ul>
+        <p class="muted">If anything the assistant says conflicts with a signed procedure, follow the procedure and tell your supervisor.</p>
+      </div>
+    </section>
+
+    <!-- My shift -->
+    <section class="panel view" id="view-shift" aria-labelledby="shift-title" hidden>
+      <div class="panel-head">
+        <div>
+          <h1 id="shift-title">My shift</h1>
+          <p class="panel-sub">Day shift checklist for Station 41. Ticks are saved in this browser.</p>
+        </div>
+        <span id="shift-progress" class="progress-text"></span>
+      </div>
+      <div class="panel-body">
+        <ul id="checklist" class="checklist"></ul>
+        <button id="reset-checklist" type="button" class="link-button">Clear all ticks</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>Simulation · assistant model <span id="model">loading</span></span>
+    <button id="presenter-open" class="link-button" type="button">Simulation controls</button>
+  </footer>
+
+  <div id="toast" class="toast" role="status" hidden></div>
+
+  <div id="scrim" class="scrim" hidden></div>
+  <aside id="presenter" class="presenter" aria-labelledby="presenter-title" hidden>
+    <div class="presenter-head">
+      <h2 id="presenter-title">Simulation controls</h2>
+      <button id="presenter-close" class="link-button" type="button">Close</button>
+    </div>
+    <p class="presenter-note">Presenter only. Open or close with Ctrl+Shift+S.
+      Ask with RAG Shield <strong>off</strong> first: once the Shield quarantines a file,
+      the unprotected assistant can no longer see it.</p>
+
+    <section class="step">
+      <div class="step-head">
+        <h3>Reveal the truth</h3>
+        <button id="reveal-toggle" class="mini-switch" type="button" role="switch" aria-checked="false">
+          <span class="track" aria-hidden="true"><span class="thumb"></span></span><span id="reveal-state">Off</span>
+        </button>
+      </div>
+      <p>Marks every answer that contradicts a signed procedure, so the audience can see what the employee can't.</p>
+    </section>
+
+    <section class="step">
+      <div class="step-head">
+        <h3>1. Outsider: fake bulletin</h3>
+        <span id="bulletin-state" class="pill"></span>
+      </div>
+      <p>Posts a "Supervisor Notification Update" to Shared documents saying Band Amber alerts
+        can be reported within 4 hours. The real rule is 15 minutes. (Anyone can also post a
+        document by hand on the Procedures page.)</p>
+      <button id="upload-bulletin" class="action" type="button">Upload fake bulletin</button>
+    </section>
+
+    <section class="step">
+      <h3>2. Insider: edited procedures</h3>
+      <p>Edits approved procedures in place, keeping the same file names and folder.
+        Edit one question, ask it with RAG Shield off, then on. Each answer shows only
+        what belongs to that question.</p>
+      <ol id="scenarios" class="scenarios"></ol>
+      <button id="tamper-all" class="action secondary" type="button">Edit all four at once</button>
+    </section>
+
+    <section class="step">
+      <h3>Question to ask</h3>
+      <p class="mono">How quickly must I notify the Shift Supervisor after a Band Amber alert?</p>
+      <button id="use-question" class="action secondary" type="button">Put it in the question box</button>
+    </section>
+
+    <section class="step">
+      <h3>Security team view</h3>
+      <ul id="alerts" class="alerts"></ul>
+    </section>
+
+    <div class="presenter-foot">
+      <button id="reset" class="action secondary" type="button">Reset scenario</button>
+      <span id="presenter-status" class="presenter-status" role="status"></span>
+    </div>
+  </aside>
+
+  <script src="/app.js"></script>
+</body>
+</html>

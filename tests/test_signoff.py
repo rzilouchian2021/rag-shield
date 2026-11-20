@@ -181,3 +181,41 @@ def test_procedure_status_explains_missing_signoff(world, settings):
     world["sign"]("owner-a")
     row = procedure_status(settings)[0]
     assert not row["verified"] and "needs 2 approvers" in row["problems"][0]
+
+
+def _archive_with(world, settings, text=None):
+    archive = settings.data_dir.parent / "archive"
+    (archive / "approved").mkdir(parents=True)
+    (archive / "approved" / "proc.md").write_bytes(
+        text.encode() if text is not None else world["doc"].read_bytes())
+    return archive
+
+
+def test_signed_copy_is_restored_only_when_it_matches_the_signatures(world, settings):
+    from src.monitoring import alerts, restore_signed_copy
+    world["sign"]("owner-a", "reviewer")
+    archive = _archive_with(world, settings)
+    original = world["doc"].read_bytes()
+    assert restore_signed_copy(settings, "approved/proc.md", archive) is None  # live file still there
+    world["doc"].unlink()  # quarantined
+    record = restore_signed_copy(settings, "approved/proc.md", archive)
+    assert record and world["doc"].read_bytes() == original
+    assert world["trust"]() == TRUST_APPROVED
+    assert any(a["kind"] == "document_restored" for a in alerts(settings.log_path))
+
+
+def test_tampered_archive_copy_is_not_restored(world, settings):
+    from src.monitoring import restore_signed_copy
+    world["sign"]("owner-a", "reviewer")
+    archive = _archive_with(world, settings, "# Escalation\n\nNotify within 4 hours.\n")
+    world["doc"].unlink()
+    assert restore_signed_copy(settings, "approved/proc.md", archive) is None
+    assert not world["doc"].exists()
+
+
+def test_nothing_is_restored_without_a_valid_signoff(world, settings):
+    from src.monitoring import restore_signed_copy
+    world["sign"]("owner-a")  # one signature only
+    archive = _archive_with(world, settings)
+    world["doc"].unlink()
+    assert restore_signed_copy(settings, "approved/proc.md", archive) is None

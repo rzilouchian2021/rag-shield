@@ -83,6 +83,7 @@ To use the Anthropic API instead, set `LLM_PROVIDER=anthropic` and `ANTHROPIC_AP
 | Rebuild summaries and charts | `python -m evaluation.summarize` |
 | Export the FAIR summary | `python -m evaluation.export_fair` |
 | Run the final demonstration | `python -m demo.run_demo`, or use the Demo page |
+| Simulated employee portal for the live demo, then open http://127.0.0.1:8600 | `python -m portal.server` (presenter controls: Ctrl+Shift+S) |
 | Integrity scan, metrics, or purge and retest | `python -m src.monitoring --scan`, `--metrics`, or `--purge-retest`, or use the Watch page |
 | Run the Watch-stage drill (about 2 minutes) | `python -m demo.run_drill`, or use the Watch page |
 | Validate the retrieval monitor (about 8 minutes) | `python -m demo.validate_monitor` |

@@ -10,6 +10,7 @@ import argparse
 import re
 import uuid
 from dataclasses import dataclass, field
+from pathlib import Path
 
 from config.settings import Settings, load_settings
 from src.embeddings import Embedder
@@ -17,7 +18,7 @@ from src.ingestion import load_corpus
 from src.llm_client import LLMClient, build_llm
 from src.logging_utils import log_event, question_fingerprint
 from src.monitoring import (alert_quarantined, alert_tampered, change_times,
-                            check_retrieval)
+                            check_retrieval, restore_signed_copy)
 from src.retriever import RetrievedChunk, Retriever
 from src.shield import (SHIELDED_SYSTEM_PROMPT, WITHHELD_MESSAGE, Shield, ShieldConfig,
                         decisions_as_dicts)
@@ -54,6 +55,8 @@ class RAGResult:
     conflicts: list[dict] = field(default_factory=list)
     quarantined: list[dict] = field(default_factory=list)
     high_impact: bool = False
+    restored: list[dict] = field(default_factory=list)     # signed copies put back
+    first_attempt: RAGResult | None = None                 # the answer before restoring
 
 
 def assemble_context(chunks: list[RetrievedChunk]) -> str:
@@ -74,8 +77,13 @@ def extract_citations(answer: str, chunks: list[RetrievedChunk]) -> tuple[list[s
 
 class RAGPipeline:
     def __init__(self, settings: Settings, llm: LLMClient | None = None,
-                 store: VectorStore | None = None):
+                 store: VectorStore | None = None, archive_dir: Path | None = None):
+        """archive_dir: optional protected store of signed versions. When set, a
+        procedure quarantined for tampering is restored from it (only if it matches
+        the signed hash) and the question is answered again. Off by default, so the
+        evaluation and dashboard behave as before."""
         self.settings = settings
+        self.archive_dir = archive_dir
         self.store = store or VectorStore(settings, Embedder(settings.embedding_model))
         self.retriever = Retriever(self.store, settings.top_k)
         self.llm = llm
@@ -107,8 +115,20 @@ class RAGPipeline:
         if mode == "baseline":
             return self._finish(self._generate(query_id, question, mode, SYSTEM_PROMPT,
                                                self.retriever.retrieve(question)))
-        result = self._finish(self._answer_shielded(query_id, question,
-                                                    shield_config or ShieldConfig()))
+        config = shield_config or ShieldConfig()
+        result = self._finish(self._answer_shielded(query_id, question, config))
+        if self.archive_dir is not None:
+            # Any quarantined file may be a tampered procedure (its recorded reason can be a
+            # conflict or an injection rather than the hash). restore_signed_copy itself
+            # refuses anything without a valid sign-off and a byte-exact signed copy.
+            restored = [r for q in result.quarantined
+                        if (r := restore_signed_copy(self.settings, q["original_path"],
+                                                     self.archive_dir))]
+            if restored:  # answer again from the signed versions
+                self.sync()
+                retry = self._finish(self._answer_shielded(uuid.uuid4().hex[:12], question, config))
+                retry.restored, retry.first_attempt = restored, result
+                result = retry
         check_retrieval(self.settings.log_path)  # Watch stage: unusual retrieval patterns
         return result
 

@@ -198,6 +198,37 @@ def alert_quarantined(settings: Settings, records: list[dict], changed: dict,
     return raised
 
 
+# --- Recovery from a signed archive ------------------------------------------
+
+def restore_signed_copy(settings: Settings, filename: str, archive_dir: Path,
+                        detected_by: str = "query") -> dict | None:
+    """Put back the signed version of a procedure that was quarantined for tampering.
+
+    The archive (a protected, read-only store of signed versions) is trusted only
+    as far as its bytes match the hash the approvers signed. Nothing is restored
+    unless the registry entry still has a valid sign-off, the archived file
+    matches it exactly, and the live path is empty (the tampered file is gone).
+    """
+    entry = load_registry(settings.registry_path).get(filename)
+    if not entry or entry.get("approval_status") != "approved":
+        return None
+    source, target = archive_dir / filename, settings.data_dir / filename
+    if not source.is_file() or target.exists():
+        return None
+    raw = source.read_bytes()
+    if sha256_bytes(raw) != entry.get("sha256"):
+        return None
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_bytes(raw)
+    restored_at = _now()
+    raise_alert(settings.log_path, "document_restored",
+                f"restored:{filename}:{restored_at}",
+                f"{filename} restored from the signed archive (matches the approvers' signatures)",
+                filename=filename, sha256=entry["sha256"], detected_by=detected_by)
+    return {"filename": filename, "doc_id": entry.get("doc_id", ""), "sha256": entry["sha256"],
+            "restored_at": restored_at}
+
+
 # --- Integrity scan ----------------------------------------------------------
 
 @dataclass
