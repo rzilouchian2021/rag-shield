@@ -4,7 +4,7 @@ A local educational simulation of AI knowledge-base poisoning, for a Cyber Risk 
 
 The scenario is hypothetical and inspired by ConfusedPilot research. It does not claim that The Williams Companies experienced this attack or is vulnerable. All documents describe an invented station ("Station 41"), and all equipment, codes, and values are made up. Nothing here connects to real systems or to Microsoft 365 Copilot.
 
-**Status:** All six phases are built, plus the Watch stage (`docs/phase7_watch.md`) and signed two-person sign-off with a tamper-evident log (`docs/phase8_signoff.md`). Manual review verdicts in `evaluation/adjudications.json` are proposed until the group confirms them on the dashboard's **Review verdicts** page.
+**Status:** All six phases are built, plus the Watch stage (`docs/phase7_watch.md`), signed two-person sign-off with a tamper-evident log and signed-copy recovery (`docs/phase8_signoff.md`), and a simulated employee portal for the live demo (`portal/`). Manual review verdicts in `evaluation/adjudications.json` are proposed until the group confirms them on the dashboard's **Review verdicts** page.
 
 | Document | Purpose |
 | --- | --- |
@@ -44,6 +44,22 @@ Question ──► Retrieval (top-k) ──► Context assembly ──► LLM   
 | Logging | `logs/events.jsonl` stores a hash of the question rather than its text |
 
 Baseline mode records trust labels but deliberately ignores them. They do not affect retrieval or the prompt.
+
+### RAG Shield layers
+
+RAG Shield wraps the same pipeline with checks before and after the model answers.
+
+| Layer | What it does | Where |
+| --- | --- | --- |
+| Gate: provenance | Re-hashes each retrieved file (SHA-256) and compares it with the registry. Labels: `approved`, `hash_mismatch`, `unapproved`, `untrusted` | `src/shield.py`, `src/ingestion.py` |
+| Signed sign-off | A procedure counts as approved only with Ed25519 signatures from two different approvers, one from the owning team, checked against a keyring signed by a document-control root key. Fails closed | `src/signoff.py` |
+| Screen: injection detection | Weighted rules for hidden instructions, scanned over the whole file | `src/shield.py` |
+| Verify: fact conflicts | Unverified documents and answers are checked against key facts in `config/authoritative_facts.json` | `src/shield.py` |
+| Answer: safe response | Safety questions need an approved, cited source; otherwise the answer is withheld | `src/shield.py` |
+| Quarantine | Tampered, injected or conflicting files are moved out of the index and kept as evidence | `src/shield.py` |
+| Recovery (optional) | Restores a quarantined procedure from a signed archive, only if the archived copy matches the signed hash, then answers again. Off by default | `src/monitoring.py`, `src/rag_pipeline.py` |
+| Watch | Integrity scans, alerts, retrieval-concentration monitor, purge and retest, governance metrics | `src/monitoring.py` |
+| Tamper-evident log | Every log entry is sealed with a chained HMAC-SHA256, so edits, deletions and truncation are detected | `src/logging_utils.py` |
 
 ## Setup
 
@@ -89,6 +105,25 @@ To use the Anthropic API instead, set `LLM_PROVIDER=anthropic` and `ANTHROPIC_AP
 | Validate the retrieval monitor (about 8 minutes) | `python -m demo.validate_monitor` |
 | Confirm manual verdicts as a group | Review verdicts page, then **Rebuild summaries and FAIR export** |
 
+## Employee portal demo
+
+`portal/` is a fictional Williams employee portal, clearly labeled as a class simulation and not affiliated with Williams. An employee (Jordan Reyes, Field Technician) asks the Field Assistant about Station 41 procedures, with a **RAG Shield on/off** switch. It also has a procedures library, a document reader, document sharing, and Safety and My shift pages.
+
+It runs on a disposable copy of the documents in `storage/portal/`, so attacks never touch `data/`. It listens on 127.0.0.1 only and turns on signed-copy recovery.
+
+```bash
+python -m portal.server        # then open http://127.0.0.1:8600
+```
+
+Press **Ctrl+Shift+S** for the hidden presenter panel:
+
+- **Upload fake bulletin**: an outsider posts a document saying Band Amber alerts can wait 4 hours (the real rule is 15 minutes).
+- **Edit** (one per suggested question) or **Edit all four at once**: an insider edits the approved procedures in place. Supervisor notification (15 minutes to 4 hours), W-217 ("always escalate" to "nuisance alert"), emergency assembly (Point B to Point D), daily rounds (CX-5, CX-6, CX-7 to CX-5 only).
+- **Reveal the truth**: marks answers that contradict a signed procedure, for the audience.
+- **Security team view**: the alerts the Shield raised. **Reset scenario** starts over.
+
+For each question: edit it, ask with RAG Shield **off** (the answer is wrong), then **on** (the answer is right, and shows only that question's conflicts and the signed versions it restored). Always ask with the Shield off first, because once the Shield restores a procedure the unprotected assistant sees the correct version too. The first answer takes about 10 seconds while the model loads.
+
 **Loading documents:** put TXT, MD, or PDF files in `data/untrusted/`, then use **Re-index documents** on the Documents page or run `--sync`. New files are classed as untrusted until they are registered and approved.
 
 **Exporting results:** CSV files and charts are written to `evaluation/results/`. `evaluation_summary.csv` holds Baseline vs Shield, and `ablation_summary.csv` holds the per-control runs.
@@ -103,6 +138,8 @@ To use the Anthropic API instead, set `LLM_PROVIDER=anthropic` and `ANTHROPIC_AP
 - Injection detection uses English rules and misses other languages and paraphrases.
 - Conflict detection covers only the facts listed in `config/authoritative_facts.json`.
 - A matching hash shows a file is unchanged since sign-off, not that its content is accurate.
+- Signed-copy recovery trusts the archive only as far as it matches the signed hash. In the portal the archive is the project's own `data/` folder; a real deployment would keep it in a separate read-only store.
+- The portal's fact check and conflict boxes cover only the key facts list, so the daily rounds edit is caught by its hash but gets no conflict line.
 - Approvers' keys are simulated: all of them sit encrypted in one local `keys/` folder with one shared demo passphrase, and the assistant runs under your own account, so the access audit shows its files as writable.
 - `llama3.1:8b` is a small model, so results do not predict how Copilot or any production assistant would behave.
 - Scanned PDFs without a text layer are skipped and reported.
