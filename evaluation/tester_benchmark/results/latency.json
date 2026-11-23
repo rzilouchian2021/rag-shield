@@ -1,0 +1,340 @@
+{
+ "summary": {
+  "on": {
+   "n": 20,
+   "p50": 3.65,
+   "p95": 5.15,
+   "mean": 3.64
+  },
+  "off": {
+   "n": 20,
+   "p50": 4.46,
+   "p95": 6.81,
+   "mean": 4.47
+  },
+  "added_p50": -0.81,
+  "added_p95": -1.66
+ },
+ "rows": [
+  {
+   "i": 0,
+   "q": "There is a gas leak at the Meter Building. What should I do?",
+   "shield": true,
+   "wall": 5.153,
+   "server": 5.147,
+   "decision": "allow"
+  },
+  {
+   "i": 0,
+   "q": "There is a gas leak at the Meter Building. What should I do?",
+   "shield": false,
+   "wall": 6.737,
+   "server": 6.732,
+   "decision": "none"
+  },
+  {
+   "i": 1,
+   "q": "Which valve isolates a leak at the Meter Building?",
+   "shield": false,
+   "wall": 2.128,
+   "server": 2.124,
+   "decision": "none"
+  },
+  {
+   "i": 1,
+   "q": "Which valve isolates a leak at the Meter Building?",
+   "shield": true,
+   "wall": 2.176,
+   "server": 2.169,
+   "decision": "allow"
+  },
+  {
+   "i": 2,
+   "q": "There is a gas leak at the Meter Building. What should I do?",
+   "shield": true,
+   "wall": 5.133,
+   "server": 5.126,
+   "decision": "allow"
+  },
+  {
+   "i": 2,
+   "q": "There is a gas leak at the Meter Building. What should I do?",
+   "shield": false,
+   "wall": 6.761,
+   "server": 6.754,
+   "decision": "none"
+  },
+  {
+   "i": 3,
+   "q": "Which valve isolates a leak at the Meter Building?",
+   "shield": false,
+   "wall": 2.14,
+   "server": 2.134,
+   "decision": "none"
+  },
+  {
+   "i": 3,
+   "q": "Which valve isolates a leak at the Meter Building?",
+   "shield": true,
+   "wall": 2.14,
+   "server": 2.134,
+   "decision": "allow"
+  },
+  {
+   "i": 4,
+   "q": "There is a gas leak at the Meter Building. What should I do?",
+   "shield": true,
+   "wall": 5.104,
+   "server": 5.097,
+   "decision": "allow"
+  },
+  {
+   "i": 4,
+   "q": "There is a gas leak at the Meter Building. What should I do?",
+   "shield": false,
+   "wall": 6.742,
+   "server": 6.737,
+   "decision": "none"
+  },
+  {
+   "i": 5,
+   "q": "Which valve isolates a leak at the Meter Building?",
+   "shield": false,
+   "wall": 2.151,
+   "server": 2.144,
+   "decision": "none"
+  },
+  {
+   "i": 5,
+   "q": "Which valve isolates a leak at the Meter Building?",
+   "shield": true,
+   "wall": 2.145,
+   "server": 2.139,
+   "decision": "allow"
+  },
+  {
+   "i": 6,
+   "q": "There is a gas leak at the Meter Building. What should I do?",
+   "shield": true,
+   "wall": 5.107,
+   "server": 5.102,
+   "decision": "allow"
+  },
+  {
+   "i": 6,
+   "q": "There is a gas leak at the Meter Building. What should I do?",
+   "shield": false,
+   "wall": 6.775,
+   "server": 6.769,
+   "decision": "none"
+  },
+  {
+   "i": 7,
+   "q": "Which valve isolates a leak at the Meter Building?",
+   "shield": false,
+   "wall": 2.13,
+   "server": 2.124,
+   "decision": "none"
+  },
+  {
+   "i": 7,
+   "q": "Which valve isolates a leak at the Meter Building?",
+   "shield": true,
+   "wall": 2.146,
+   "server": 2.14,
+   "decision": "allow"
+  },
+  {
+   "i": 8,
+   "q": "There is a gas leak at the Meter Building. What should I do?",
+   "shield": true,
+   "wall": 5.104,
+   "server": 5.1,
+   "decision": "allow"
+  },
+  {
+   "i": 8,
+   "q": "There is a gas leak at the Meter Building. What should I do?",
+   "shield": false,
+   "wall": 6.831,
+   "server": 6.825,
+   "decision": "none"
+  },
+  {
+   "i": 9,
+   "q": "Which valve isolates a leak at the Meter Building?",
+   "shield": false,
+   "wall": 2.153,
+   "server": 2.147,
+   "decision": "none"
+  },
+  {
+   "i": 9,
+   "q": "Which valve isolates a leak at the Meter Building?",
+   "shield": true,
+   "wall": 2.153,
+   "server": 2.145,
+   "decision": "allow"
+  },
+  {
+   "i": 10,
+   "q": "There is a gas leak at the Meter Building. What should I do?",
+   "shield": true,
+   "wall": 5.103,
+   "server": 5.098,
+   "decision": "allow"
+  },
+  {
+   "i": 10,
+   "q": "There is a gas leak at the Meter Building. What should I do?",
+   "shield": false,
+   "wall": 6.778,
+   "server": 6.773,
+   "decision": "none"
+  },
+  {
+   "i": 11,
+   "q": "Which valve isolates a leak at the Meter Building?",
+   "shield": false,
+   "wall": 2.133,
+   "server": 2.127,
+   "decision": "none"
+  },
+  {
+   "i": 11,
+   "q": "Which valve isolates a leak at the Meter Building?",
+   "shield": true,
+   "wall": 2.157,
+   "server": 2.151,
+   "decision": "allow"
+  },
+  {
+   "i": 12,
+   "q": "There is a gas leak at the Meter Building. What should I do?",
+   "shield": true,
+   "wall": 5.093,
+   "server": 5.088,
+   "decision": "allow"
+  },
+  {
+   "i": 12,
+   "q": "There is a gas leak at the Meter Building. What should I do?",
+   "shield": false,
+   "wall": 6.806,
+   "server": 6.799,
+   "decision": "none"
+  },
+  {
+   "i": 13,
+   "q": "Which valve isolates a leak at the Meter Building?",
+   "shield": false,
+   "wall": 2.173,
+   "server": 2.165,
+   "decision": "none"
+  },
+  {
+   "i": 13,
+   "q": "Which valve isolates a leak at the Meter Building?",
+   "shield": true,
+   "wall": 2.216,
+   "server": 2.209,
+   "decision": "allow"
+  },
+  {
+   "i": 14,
+   "q": "There is a gas leak at the Meter Building. What should I do?",
+   "shield": true,
+   "wall": 5.115,
+   "server": 5.109,
+   "decision": "allow"
+  },
+  {
+   "i": 14,
+   "q": "There is a gas leak at the Meter Building. What should I do?",
+   "shield": false,
+   "wall": 6.796,
+   "server": 6.789,
+   "decision": "none"
+  },
+  {
+   "i": 15,
+   "q": "Which valve isolates a leak at the Meter Building?",
+   "shield": false,
+   "wall": 2.171,
+   "server": 2.164,
+   "decision": "none"
+  },
+  {
+   "i": 15,
+   "q": "Which valve isolates a leak at the Meter Building?",
+   "shield": true,
+   "wall": 2.174,
+   "server": 2.169,
+   "decision": "allow"
+  },
+  {
+   "i": 16,
+   "q": "There is a gas leak at the Meter Building. What should I do?",
+   "shield": true,
+   "wall": 5.128,
+   "server": 5.123,
+   "decision": "allow"
+  },
+  {
+   "i": 16,
+   "q": "There is a gas leak at the Meter Building. What should I do?",
+   "shield": false,
+   "wall": 6.805,
+   "server": 6.8,
+   "decision": "none"
+  },
+  {
+   "i": 17,
+   "q": "Which valve isolates a leak at the Meter Building?",
+   "shield": false,
+   "wall": 2.159,
+   "server": 2.152,
+   "decision": "none"
+  },
+  {
+   "i": 17,
+   "q": "Which valve isolates a leak at the Meter Building?",
+   "shield": true,
+   "wall": 2.145,
+   "server": 2.14,
+   "decision": "allow"
+  },
+  {
+   "i": 18,
+   "q": "There is a gas leak at the Meter Building. What should I do?",
+   "shield": true,
+   "wall": 5.151,
+   "server": 5.146,
+   "decision": "allow"
+  },
+  {
+   "i": 18,
+   "q": "There is a gas leak at the Meter Building. What should I do?",
+   "shield": false,
+   "wall": 6.793,
+   "server": 6.785,
+   "decision": "none"
+  },
+  {
+   "i": 19,
+   "q": "Which valve isolates a leak at the Meter Building?",
+   "shield": false,
+   "wall": 2.143,
+   "server": 2.136,
+   "decision": "none"
+  },
+  {
+   "i": 19,
+   "q": "Which valve isolates a leak at the Meter Building?",
+   "shield": true,
+   "wall": 2.151,
+   "server": 2.148,
+   "decision": "allow"
+  }
+ ]
+}

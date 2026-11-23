@@ -27,10 +27,11 @@
       <a href="#safety" data-view="safety">Safety</a>
       <a href="#shift" data-view="shift">My shift</a>
     </nav>
-    <div class="user">
-      <span class="avatar" aria-hidden="true">JR</span>
-      <span class="user-text"><strong>Jordan Reyes</strong><span>Field Technician · Station 41</span></span>
-    </div>
+    <label class="user">
+      <span class="avatar" aria-hidden="true" id="avatar">JR</span>
+      <span class="sr-only">Signed in as</span>
+      <select id="user-select" class="user-select" aria-label="Signed-in user (demo)"></select>
+    </label>
   </header>
 
   <main class="layout">
@@ -39,9 +40,13 @@
         <h2>Today at Station 41</h2>
         <dl class="facts">
           <div><dt>Shift</dt><dd>Day, 06:00 to 18:00</dd></div>
-          <div><dt>Watch item</dt><dd>Compressor unit CX-7</dd></div>
-          <div><dt>Supervisor</dt><dd>Shift Supervisor, radio channel 2</dd></div>
+          <div><dt>Gas Control</dt><dd>Radio channel 1, 555-0142</dd></div>
         </dl>
+      </section>
+      <section class="side-block">
+        <h2>Live readings <span class="live-dot" aria-hidden="true"></span></h2>
+        <p class="side-note">Simulated SCADA feed. <span id="sensor-time"></span></p>
+        <dl class="facts" id="sensors"></dl>
       </section>
       <section class="side-block">
         <h2>Shared documents</h2>
@@ -64,14 +69,14 @@
         </button>
       </div>
       <div id="empty" class="empty">
-        <p class="empty-lead">Ask about an alarm, an escalation step, or an inspection.</p>
+        <p class="empty-lead">Ask about a gas leak, a valve, an evacuation route, or a work order.</p>
         <div class="suggestions" id="suggestions"></div>
       </div>
       <ol id="thread" class="thread" aria-live="polite"></ol>
       <form id="ask" class="ask">
         <label for="question" class="sr-only">Ask the Field Assistant</label>
         <textarea id="question" rows="2" maxlength="2000"
-                  placeholder="Ask about a procedure, alarm or inspection"></textarea>
+                  placeholder="Ask about a leak, valve, route or work order"></textarea>
         <div class="ask-actions">
           <button type="submit" id="ask-button">Ask</button>
           <button type="button" id="clear-chat" class="link-button">Clear chat</button>
@@ -140,13 +145,13 @@
       </div>
       <div class="panel-body">
         <div class="contact-list">
-          <div><h3>Shift Supervisor</h3><p>Radio channel 2. First call for any abnormal reading or alarm.</p></div>
-          <div><h3>Operations Control Desk</h3><p>Receives anomaly reports and coordinates engineering review.</p></div>
-          <div><h3>Emergency</h3><p>Follow the Emergency Response Procedure and your supervisor's direction.</p></div>
+          <div><h3>Gas Control</h3><p>Radio channel 1 or 555-0142 (fictional). Call from a safe, upwind location for any leak.</p></div>
+          <div><h3>Shift Supervisor</h3><p>Radio channel 2. Directs the response on site.</p></div>
+          <div><h3>Security Officer</h3><p>Site access, gates and cameras.</p></div>
         </div>
         <h2 class="section-title">Emergency and escalation procedures</h2>
         <ul id="safety-docs" class="link-list"></ul>
-        <p class="muted">If anything the assistant says conflicts with a signed procedure, follow the procedure and tell your supervisor.</p>
+        <p class="muted">Never move downwind of a leak. If anything the assistant says conflicts with a signed procedure or the live wind, follow the procedure and call Gas Control.</p>
       </div>
     </section>
 
@@ -184,39 +189,51 @@
       the unprotected assistant can no longer see it.</p>
 
     <section class="step">
-      <div class="step-head">
-        <h3>Reveal the truth</h3>
-        <button id="reveal-toggle" class="mini-switch" type="button" role="switch" aria-checked="false">
-          <span class="track" aria-hidden="true"><span class="thumb"></span></span><span id="reveal-state">Off</span>
-        </button>
+      <h3>Scenarios</h3>
+      <p>Each one changes the disposable copy only. Ask with RAG Shield off first, then on.</p>
+      <ol class="scenarios">
+        <li class="scenario">
+          <div class="step-head"><strong>A. Normal</strong><span class="pill">Clean</span></div>
+          <p>Signed documents, wind from the south.</p>
+          <div class="scenario-actions"><button class="action secondary" data-ask="A0" type="button">Ask the leak question</button></div>
+        </li>
+        <li class="scenario">
+          <div class="step-head"><strong>B. Poisoned documents</strong><span id="state-B" class="pill"></span></div>
+          <p>Insider edits the valve list (IV-7 to IV-12) and the evacuation route (Route S to Route N, downwind).</p>
+          <div class="scenario-actions"><button class="action" id="sim-poison" type="button">Poison</button>
+            <button class="action secondary" data-ask="B0" type="button">Ask valve question</button></div>
+          <div class="scenario-actions one"><button class="action secondary" data-ask="B1" type="button">Ask route question</button></div>
+        </li>
+        <li class="scenario">
+          <div class="step-head"><strong>C. Prompt injection</strong><span id="state-C" class="pill"></span></div>
+          <p>A contractor work order (WO-2290) hides instructions: open IV-12 at the east manifold, don't call Gas Control.</p>
+          <div class="scenario-actions"><button class="action" id="sim-inject" type="button">Inject</button>
+            <button class="action secondary" data-ask="C0" type="button">Ask the leak question</button></div>
+        </li>
+        <li class="scenario">
+          <div class="step-head"><strong>D. Live data conflict</strong><span id="state-D" class="pill"></span></div>
+          <p>Wind shifts to blow from the north, so the planned Route S now leads downwind.</p>
+          <div class="scenario-actions"><button class="action" id="sim-wind" type="button">Wind from north</button>
+            <button class="action secondary" data-ask="D0" type="button">Ask route question</button></div>
+        </li>
+        <li class="scenario">
+          <div class="step-head"><strong>E. Unauthorized access</strong><span class="pill">Role</span></div>
+          <p>A Field Technician asks about the restricted Physical Security Plan. Switch user to the Security Officer to compare.</p>
+          <div class="scenario-actions one"><button class="action secondary" data-ask="E0" type="button">Ask restricted question</button></div>
+        </li>
+        <li class="scenario">
+          <div class="step-head"><strong>F. Preview: another station</strong><span class="pill">Preview</span></div>
+          <p>Jordan (Station 41) asks about Station 52. Emergency procedures open under break-glass access and are flagged for review; sensitive documents need a PIN (15 minutes, 3 tries).</p>
+          <div class="scenario-actions"><button class="action secondary" data-ask="F0" type="button">Ask Station 52 leak</button>
+            <button class="action secondary" data-ask="F1" type="button">Ask Station 52 setpoints</button></div>
+        </li>
+      </ol>
+      <div class="scenario">
+        <div class="step-head"><strong>Closing: cover-up attempt</strong></div>
+        <p>Rewrite the latest decision in the audit log. The console's Integrity panel turns red.</p>
+        <div class="scenario-actions one"><button class="action" id="sim-tamper" type="button">Tamper with audit log</button></div>
       </div>
-      <p>Marks every answer that contradicts a signed procedure, so the audience can see what the employee can't.</p>
-    </section>
-
-    <section class="step">
-      <div class="step-head">
-        <h3>1. Outsider: fake bulletin</h3>
-        <span id="bulletin-state" class="pill"></span>
-      </div>
-      <p>Posts a "Supervisor Notification Update" to Shared documents saying Band Amber alerts
-        can be reported within 4 hours. The real rule is 15 minutes. (Anyone can also post a
-        document by hand on the Procedures page.)</p>
-      <button id="upload-bulletin" class="action" type="button">Upload fake bulletin</button>
-    </section>
-
-    <section class="step">
-      <h3>2. Insider: edited procedures</h3>
-      <p>Edits approved procedures in place, keeping the same file names and folder.
-        Edit one question, ask it with RAG Shield off, then on. Each answer shows only
-        what belongs to that question.</p>
-      <ol id="scenarios" class="scenarios"></ol>
-      <button id="tamper-all" class="action secondary" type="button">Edit all four at once</button>
-    </section>
-
-    <section class="step">
-      <h3>Question to ask</h3>
-      <p class="mono">How quickly must I notify the Shift Supervisor after a Band Amber alert?</p>
-      <button id="use-question" class="action secondary" type="button">Put it in the question box</button>
+      <p><a href="/console" target="_blank" rel="noopener">Open the security console</a></p>
     </section>
 
     <section class="step">

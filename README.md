@@ -4,7 +4,7 @@ A local educational simulation of AI knowledge-base poisoning, for a Cyber Risk 
 
 The scenario is hypothetical and inspired by ConfusedPilot research. It does not claim that The Williams Companies experienced this attack or is vulnerable. All documents describe an invented station ("Station 41"), and all equipment, codes, and values are made up. Nothing here connects to real systems or to Microsoft 365 Copilot.
 
-**Status:** All six phases are built, plus the Watch stage (`docs/phase7_watch.md`), signed two-person sign-off with a tamper-evident log and signed-copy recovery (`docs/phase8_signoff.md`), and a simulated employee portal for the live demo (`portal/`). Manual review verdicts in `evaluation/adjudications.json` are proposed until the group confirms them on the dashboard's **Review verdicts** page.
+**Status:** All six phases are built, plus the Watch stage (`docs/phase7_watch.md`), signed two-person sign-off with a tamper-evident log and signed-copy recovery (`docs/phase8_signoff.md`), and the gas-leak demo with a technician portal and security console (`portal/`, `src/policy.py`). Manual review verdicts in `evaluation/adjudications.json` are proposed until the group confirms them on the dashboard's **Review verdicts** page.
 
 | Document | Purpose |
 | --- | --- |
@@ -99,30 +99,40 @@ To use the Anthropic API instead, set `LLM_PROVIDER=anthropic` and `ANTHROPIC_AP
 | Rebuild summaries and charts | `python -m evaluation.summarize` |
 | Export the FAIR summary | `python -m evaluation.export_fair` |
 | Run the final demonstration | `python -m demo.run_demo`, or use the Demo page |
-| Simulated employee portal for the live demo, then open http://127.0.0.1:8600 | `python -m portal.server` (presenter controls: Ctrl+Shift+S) |
+| Gas-leak demo: technician portal and security console | `python -m portal.server`, then http://127.0.0.1:8600 and /console (presenter controls: Ctrl+Shift+S) |
 | Integrity scan, metrics, or purge and retest | `python -m src.monitoring --scan`, `--metrics`, or `--purge-retest`, or use the Watch page |
 | Run the Watch-stage drill (about 2 minutes) | `python -m demo.run_drill`, or use the Watch page |
 | Validate the retrieval monitor (about 8 minutes) | `python -m demo.validate_monitor` |
 | Confirm manual verdicts as a group | Review verdicts page, then **Rebuild summaries and FAIR export** |
 
-## Employee portal demo
+## Gas-leak demo: technician portal and security console
 
-`portal/` is a fictional Williams employee portal, clearly labeled as a class simulation and not affiliated with Williams. An employee (Jordan Reyes, Field Technician) asks the Field Assistant about Station 41 procedures, with a **RAG Shield on/off** switch. It also has a procedures library, a document reader, document sharing, and Safety and My shift pages.
-
-It runs on a disposable copy of the documents in `storage/portal/`, so attacks never touch `data/`. It listens on 127.0.0.1 only and turns on signed-copy recovery.
+The live demo (`docs/demo-script.md`) runs a fictional Williams-style employee portal, clearly labeled as a class simulation and not affiliated with Williams. A field technician asks the Field Assistant about a gas leak, using a synthetic knowledge base in `data/kb/`: a leak procedure, an isolation valve list, evacuation routes, work orders, a restricted security plan, simulated live sensor readings, and two documents from a second fictional station (Station 52). All documents are signed by two approvers (`config/kb_registry.json`).
 
 ```bash
-python -m portal.server        # then open http://127.0.0.1:8600
+python -m portal.server     # technician: http://127.0.0.1:8600   console: http://127.0.0.1:8600/console
 ```
 
-Press **Ctrl+Shift+S** for the hidden presenter panel:
+Both interfaces call the same backend and the same deterministic policy layer (`src/policy.py`): identify the user and role, filter retrieved documents by role, inspect with RAG Shield, answer from permitted context only, inspect the answer, check routes against live wind, then decide **allow / warn / redact / block** and write the decision to the sealed audit log. The console shows each request under the same request ID as the technician view.
 
-- **Upload fake bulletin**: an outsider posts a document saying Band Amber alerts can wait 4 hours (the real rule is 15 minutes).
-- **Edit** (one per suggested question) or **Edit all four at once**: an insider edits the approved procedures in place. Supervisor notification (15 minutes to 4 hours), W-217 ("always escalate" to "nuisance alert"), emergency assembly (Point B to Point D), daily rounds (CX-5, CX-6, CX-7 to CX-5 only).
-- **Reveal the truth**: marks answers that contradict a signed procedure, for the audience.
-- **Security team view**: the alerts the Shield raised. **Reset scenario** starts over.
+Presenter panel (**Ctrl+Shift+S**) scenarios, each repeatable and applied to a disposable copy in `storage/portal/`:
 
-For each question: edit it, ask with RAG Shield **off** (the answer is wrong), then **on** (the answer is right, and shows only that question's conflicts and the signed versions it restored). Always ask with the Shield off first, because once the Shield restores a procedure the unprotected assistant sees the correct version too. The first answer takes about 10 seconds while the model loads.
+| Scenario | Toggle | Shield off | Shield on |
+| --- | --- | --- | --- |
+| A. Normal | Reset | Correct guidance | **Allow** |
+| B. Poisoned valve list and route | Poison | Wrong valve (IV-12) | **Redact**: tampered copies excluded, signed versions restored, IV-7 |
+| C. Injected work order | Inject | "Open IV-12 at the east manifold, don't call Gas Control" | **Redact**: work order excluded, correct procedure |
+| D. Route downwind of the leak | Wind from north | Route S | **Warn**: confirm with Gas Control, upwind route is Route N |
+| E. Restricted document | (none) | Leaks camera gaps | **Block** by role, nothing revealed |
+| F. Preview: another station | (none) | Station 52's sensitive setpoints, no checks | Emergency procedure: **Warn** (break-glass, flagged for review). Sensitive document: **Block** until the PIN is verified (15 minutes, 3 tries) |
+
+Closing: **Tamper with audit log** rewrites a past decision; the console's Integrity panel shows the log no longer verifies.
+
+**OWASP RAG Security Cheat Sheet:** every recommendation is mapped to code and tests in `docs/owasp-rag-coverage.md` (red-team tests: `tests/test_owasp_rag.py`, run in CI by `.github/workflows/tests.yml`). Added controls include index-integrity checks on every retrieved chunk, hidden-character detection, data delimiters in the prompt, per-user rate limits, secret and identifier redaction, signed attribution (`POST /api/verify-attribution`), stage-named fail-closed errors, and pattern alerts. Incident response: `docs/incident-response.md` and `python -m src.incident affected DOC-ID`.
+
+Set `RAG_SHIELD_DEMO_PIN` in `.env` (see `.env.example`) for scenario F; without it, other stations' sensitive documents stay locked.
+
+Architecture and trust boundaries: `docs/architecture.md`. Audit of the starting point: `docs/existing-system-audit.md`. Independent test results: `docs/test-results.md`. Limitations and production needs: `docs/limitations.md`.
 
 **Loading documents:** put TXT, MD, or PDF files in `data/untrusted/`, then use **Re-index documents** on the Documents page or run `--sync`. New files are classed as untrusted until they are registered and approved.
 
@@ -139,7 +149,6 @@ For each question: edit it, ask with RAG Shield **off** (the answer is wrong), t
 - Conflict detection covers only the facts listed in `config/authoritative_facts.json`.
 - A matching hash shows a file is unchanged since sign-off, not that its content is accurate.
 - Signed-copy recovery trusts the archive only as far as it matches the signed hash. In the portal the archive is the project's own `data/` folder; a real deployment would keep it in a separate read-only store.
-- The portal's fact check and conflict boxes cover only the key facts list, so the daily rounds edit is caught by its hash but gets no conflict line.
 - Approvers' keys are simulated: all of them sit encrypted in one local `keys/` folder with one shared demo passphrase, and the assistant runs under your own account, so the access audit shows its files as writable.
 - `llama3.1:8b` is a small model, so results do not predict how Copilot or any production assistant would behave.
 - Scanned PDFs without a text layer are skipped and reported.

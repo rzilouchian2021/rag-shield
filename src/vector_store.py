@@ -87,12 +87,16 @@ class VectorStore:
         self.collection = self._open()
         return self.sync(documents)
 
-    def query(self, text: str, top_k: int) -> dict:
+    def query(self, text: str, top_k: int, doc_ids: list[str] | None = None) -> dict:
+        """doc_ids: search only these documents (scoping happens inside the search, so
+        out-of-scope chunks are never returned)."""
+        empty = {"documents": [[]], "metadatas": [[]], "distances": [[]], "ids": [[]]}
         count = self.collection.count()
-        if count == 0:
-            return {"documents": [[]], "metadatas": [[]], "distances": [[]], "ids": [[]]}
+        if count == 0 or (doc_ids is not None and not doc_ids):
+            return empty
         return self.collection.query(
             query_embeddings=self.embedder.embed([text]),
             n_results=min(top_k, count),
             include=["documents", "metadatas", "distances"],
+            **({"where": {"doc_id": {"$in": sorted(doc_ids)}}} if doc_ids is not None else {}),
         )

@@ -28,8 +28,9 @@ class Retriever:
         self.store = store
         self.top_k = top_k
 
-    def retrieve(self, question: str, top_k: int | None = None) -> list[RetrievedChunk]:
-        raw = self.store.query(question, top_k or self.top_k)
+    def retrieve(self, question: str, top_k: int | None = None,
+                 doc_ids: list[str] | None = None) -> list[RetrievedChunk]:
+        raw = self.store.query(question, top_k or self.top_k, doc_ids)
         rows = zip(raw["ids"][0], raw["documents"][0], raw["metadatas"][0], raw["distances"][0])
         return [
             RetrievedChunk(rank, chunk_id, text, round(1 - distance, 4), metadata)

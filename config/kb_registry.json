@@ -1,0 +1,248 @@
+{
+  "_note": "Registry for the synthetic gas-leak knowledge base (data/kb). Fictional. allowed_roles is enforced by src/policy.py; text inside a document never changes it.",
+  "documents": [
+    {
+      "doc_id": "DOC-101",
+      "filename": "approved/gas_leak_emergency_procedure.md",
+      "source": "controlled-procedure-library",
+      "owner": "Health and Safety",
+      "approval_status": "approved",
+      "version": "1.0",
+      "upload_timestamp": "2026-11-02T09:00:00+00:00",
+      "sha256": "71089e67c03f14fc0c92c27ae035d6c25b7fda86b675f6817cd428863c4f0710",
+      "allowed_roles": [
+        "field_technician",
+        "shift_supervisor",
+        "security_officer"
+      ],
+      "signatures": [
+        {
+          "approver": "safety-officer",
+          "key_id": "a02ed61a3d9830bd",
+          "sha256": "71089e67c03f14fc0c92c27ae035d6c25b7fda86b675f6817cd428863c4f0710",
+          "version": "1.0",
+          "signed_at": "2026-11-22T20:14:11+00:00",
+          "signature": "zgWWkJ74WeyOv6HrLVW7UzgF7Xpr1ePnhTNXdbPxyCbl79y/MtfMIIx0785kBHZwHT5oucJevHS6Z+d31HhlDQ=="
+        },
+        {
+          "approver": "ops-manager",
+          "key_id": "b821ea89a5a344d7",
+          "sha256": "71089e67c03f14fc0c92c27ae035d6c25b7fda86b675f6817cd428863c4f0710",
+          "version": "1.0",
+          "signed_at": "2026-11-22T20:14:11+00:00",
+          "signature": "kb4lpNnVTi70E80hmmUSMDPbr9xTLTsOa/+m66X0LRFzL6QoVUvP/MVPLifXPB9R50C0eG6alhWxCl5TCfJxDQ=="
+        }
+      ],
+      "site": "Station 41",
+      "sensitivity": "emergency"
+    },
+    {
+      "doc_id": "DOC-102",
+      "filename": "approved/isolation_valve_list.md",
+      "source": "controlled-procedure-library",
+      "owner": "Station Operations",
+      "approval_status": "approved",
+      "version": "1.0",
+      "upload_timestamp": "2026-11-02T09:00:00+00:00",
+      "sha256": "1d62bce6db14496e02686dc789f8ee039cf7c33430ea5d46d85df0e0979add5d",
+      "allowed_roles": [
+        "field_technician",
+        "shift_supervisor",
+        "security_officer"
+      ],
+      "signatures": [
+        {
+          "approver": "shift-supervisor",
+          "key_id": "69a6b4d1ce148bf1",
+          "sha256": "1d62bce6db14496e02686dc789f8ee039cf7c33430ea5d46d85df0e0979add5d",
+          "version": "1.0",
+          "signed_at": "2026-11-22T20:14:11+00:00",
+          "signature": "2l5LT32X4+O6UK2aV+AbOYu6m7NjEkUpN/tzXfS9rMYznhvaLe8xWaOfuBaTiiLMaVMgTQ3VL87M2+KUtJAhDg=="
+        },
+        {
+          "approver": "ops-manager",
+          "key_id": "b821ea89a5a344d7",
+          "sha256": "1d62bce6db14496e02686dc789f8ee039cf7c33430ea5d46d85df0e0979add5d",
+          "version": "1.0",
+          "signed_at": "2026-11-22T20:14:11+00:00",
+          "signature": "Loc/UZl6uQESp4rFu4Ao+OApUUyoxbmgI/ig5MtkZtZb9il+WsgFMdWG3tTxNdJrFxCOt9IHC4YkfW5qLiAMCA=="
+        }
+      ],
+      "site": "Station 41",
+      "sensitivity": "emergency"
+    },
+    {
+      "doc_id": "DOC-103",
+      "filename": "approved/evacuation_routes.md",
+      "source": "controlled-procedure-library",
+      "owner": "Health and Safety",
+      "approval_status": "approved",
+      "version": "1.0",
+      "upload_timestamp": "2026-11-02T09:00:00+00:00",
+      "sha256": "5a6cfc3b1725fac0516f27cd6362d42ef0dabb332aaa879b231f3b21fc236858",
+      "allowed_roles": [
+        "field_technician",
+        "shift_supervisor",
+        "security_officer"
+      ],
+      "signatures": [
+        {
+          "approver": "safety-officer",
+          "key_id": "a02ed61a3d9830bd",
+          "sha256": "5a6cfc3b1725fac0516f27cd6362d42ef0dabb332aaa879b231f3b21fc236858",
+          "version": "1.0",
+          "signed_at": "2026-11-22T20:14:11+00:00",
+          "signature": "bI8+/oeLBTgJsFf5G1BKW/li3/GB1vgaxSy1XhPiZ8cyg1bpkSkmmLFLjfAH4yVOcjo+8aPBn9il8EXeqmPKDQ=="
+        },
+        {
+          "approver": "shift-supervisor",
+          "key_id": "69a6b4d1ce148bf1",
+          "sha256": "5a6cfc3b1725fac0516f27cd6362d42ef0dabb332aaa879b231f3b21fc236858",
+          "version": "1.0",
+          "signed_at": "2026-11-22T20:14:11+00:00",
+          "signature": "apNRzDYlv/SCK8Uoocm6lr8iBZ5oRnMVSZSrq/EMTRe9vZ1KOg8oSoVSQCOK2sTPlKxXNBrYjdmfP9bF+678BQ=="
+        }
+      ],
+      "site": "Station 41",
+      "sensitivity": "emergency"
+    },
+    {
+      "doc_id": "DOC-104",
+      "filename": "approved/open_work_orders.md",
+      "source": "controlled-procedure-library",
+      "owner": "Maintenance Planning",
+      "approval_status": "approved",
+      "version": "1.0",
+      "upload_timestamp": "2026-11-02T09:00:00+00:00",
+      "sha256": "d05eb83b29f7c1478cdb17882417ba477aa9744027caa4961934f57e38c6eb79",
+      "allowed_roles": [
+        "field_technician",
+        "shift_supervisor",
+        "security_officer"
+      ],
+      "signatures": [
+        {
+          "approver": "maintenance-lead",
+          "key_id": "3a48d2ae0b859b8b",
+          "sha256": "d05eb83b29f7c1478cdb17882417ba477aa9744027caa4961934f57e38c6eb79",
+          "version": "1.0",
+          "signed_at": "2026-11-22T20:14:11+00:00",
+          "signature": "3X70t57gtLJ/K5uOmsGmvLKLJAgnL3DX+GGv5YuNOIbNxdgP2pFNaS7tTfIT3uZc7xIZKoOfMcKQFMlxhk36DA=="
+        },
+        {
+          "approver": "ops-manager",
+          "key_id": "b821ea89a5a344d7",
+          "sha256": "d05eb83b29f7c1478cdb17882417ba477aa9744027caa4961934f57e38c6eb79",
+          "version": "1.0",
+          "signed_at": "2026-11-22T20:14:11+00:00",
+          "signature": "rAFG4zI0+7vGEaO1k8iWZwWRC2XICYTFyMjH6aUYBzlsSGwwtr30J6khknpcHVmo3gPpQ9gXaOOLAf/lIYxLBg=="
+        }
+      ],
+      "site": "Station 41",
+      "sensitivity": "standard"
+    },
+    {
+      "doc_id": "DOC-105",
+      "filename": "approved/physical_security_plan.md",
+      "source": "controlled-procedure-library",
+      "owner": "Station Operations",
+      "approval_status": "approved",
+      "version": "1.0",
+      "upload_timestamp": "2026-11-02T09:00:00+00:00",
+      "sha256": "af9948472339a4bea107be98e1d4d1f974f89c91790c5a91c9bc9d048d62c1e4",
+      "allowed_roles": [
+        "security_officer"
+      ],
+      "signatures": [
+        {
+          "approver": "ops-manager",
+          "key_id": "b821ea89a5a344d7",
+          "sha256": "af9948472339a4bea107be98e1d4d1f974f89c91790c5a91c9bc9d048d62c1e4",
+          "version": "1.0",
+          "signed_at": "2026-11-22T20:14:11+00:00",
+          "signature": "a+jXBJK6vD2U2aUopy8SnL5IWZzrIOgpMpUXrS0IB5rq2zw/euYuTtExW9I005uTBYQW7p1yfkmuLB/FcRHiBA=="
+        },
+        {
+          "approver": "shift-supervisor",
+          "key_id": "69a6b4d1ce148bf1",
+          "sha256": "af9948472339a4bea107be98e1d4d1f974f89c91790c5a91c9bc9d048d62c1e4",
+          "version": "1.0",
+          "signed_at": "2026-11-22T20:14:11+00:00",
+          "signature": "k6zyer7OzUfFgUpsSe9nd7YMGKXCYnfHQHGjlEzQ2j9ECaei3XniuvN87Ma9J9Y0bJUcw5uKa6Xf81pu+Bl1Dg=="
+        }
+      ],
+      "site": "Station 41",
+      "sensitivity": "restricted"
+    },
+    {
+      "doc_id": "DOC-201",
+      "filename": "approved/station52_gas_leak_procedure.md",
+      "source": "controlled-procedure-library",
+      "owner": "Health and Safety",
+      "approval_status": "approved",
+      "version": "1.0",
+      "upload_timestamp": "2026-11-22T09:00:00+00:00",
+      "sha256": "057ece2887c0c7b0c43e926cd84f2e94b10f2ffe8b66d2f10bfcad939e17829c",
+      "allowed_roles": [
+        "field_technician",
+        "shift_supervisor",
+        "security_officer"
+      ],
+      "site": "Station 52",
+      "sensitivity": "emergency",
+      "signatures": [
+        {
+          "approver": "safety-officer",
+          "key_id": "a02ed61a3d9830bd",
+          "sha256": "057ece2887c0c7b0c43e926cd84f2e94b10f2ffe8b66d2f10bfcad939e17829c",
+          "version": "1.0",
+          "signed_at": "2026-11-22T20:14:11+00:00",
+          "signature": "ZvgCYu8t4se3CRvVRZcJ1acFNp7QDdxzJJhNgRK0NWEwxDfO4iHyNcESaawWVfutMibUi0vboRdea+z4frKhAA=="
+        },
+        {
+          "approver": "ops-manager",
+          "key_id": "b821ea89a5a344d7",
+          "sha256": "057ece2887c0c7b0c43e926cd84f2e94b10f2ffe8b66d2f10bfcad939e17829c",
+          "version": "1.0",
+          "signed_at": "2026-11-22T20:14:11+00:00",
+          "signature": "8gYQUv/FqRFXpeCQ9tVTKlEKdkh7tMfHFyZdYp8z9xzbZepF1BJ3Re3+nvm9BpJnffTooIuGksa9M5UCZrgUDg=="
+        }
+      ]
+    },
+    {
+      "doc_id": "DOC-202",
+      "filename": "approved/station52_relief_valve_setpoints.md",
+      "source": "controlled-procedure-library",
+      "owner": "Reliability Engineering",
+      "approval_status": "approved",
+      "version": "1.0",
+      "upload_timestamp": "2026-11-22T09:00:00+00:00",
+      "sha256": "857197df696c8a964ed61d25f927e59b8c8d5cf390e47642b6c242591d9d0d99",
+      "allowed_roles": [
+        "field_technician",
+        "shift_supervisor",
+        "security_officer"
+      ],
+      "site": "Station 52",
+      "sensitivity": "sensitive",
+      "signatures": [
+        {
+          "approver": "reliability-lead",
+          "key_id": "76642755f7885767",
+          "sha256": "857197df696c8a964ed61d25f927e59b8c8d5cf390e47642b6c242591d9d0d99",
+          "version": "1.0",
+          "signed_at": "2026-11-22T20:14:11+00:00",
+          "signature": "w7r34l/jE0gNxtzQF5zIZ3mP7c/Vhnui22Xw4+Sa3abe+aCeFSmRbzGSDEqhNs8qditVYPC9mSU1fDfWCn8ZBg=="
+        },
+        {
+          "approver": "ops-manager",
+          "key_id": "b821ea89a5a344d7",
+          "sha256": "857197df696c8a964ed61d25f927e59b8c8d5cf390e47642b6c242591d9d0d99",
+          "version": "1.0",
+          "signed_at": "2026-11-22T20:14:11+00:00",
+          "signature": "8LZGFdmyqI140DaGTdnNq+yra4kTfaBgtnO/TJuhTUSpViAEjwGba5KBoE8LbvlxIreVAUgtB4m9ureZBhuCAw=="
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+[
+ {
+  "test": "1 inspection service raises",
+  "shield": true,
+  "decision": "block",
+  "category": "system",
+  "answer": "A safety check could not finish, so no answer is shown. Follow the Gas Leak Emergency Procedure (DOC-101): stop work, move upwind, and call Gas Control on radio channel 1 or 555-0142.",
+  "explanation": "Part of the request failed, so the system refused rather than pass on unchecked content.",
+  "internal_details_visible": [],
+  "audit_error_type": "RuntimeError"
+ },
+ {
+  "test": "2a LLM error, shield on",
+  "shield": true,
+  "decision": "block",
+  "category": "system",
+  "answer": "A safety check could not finish, so no answer is shown. Follow the Gas Leak Emergency Procedure (DOC-101): stop work, move upwind, and call Gas Control on radio channel 1 or 555-0142.",
+  "explanation": "Part of the request failed, so the system refused rather than pass on unchecked content.",
+  "internal_details_visible": [],
+  "audit_error_type": "ConnectionError"
+ },
+ {
+  "test": "2b LLM error, shield off",
+  "shield": false,
+  "decision": "none",
+  "category": "system",
+  "answer": "The assistant is unavailable right now. Follow the Gas Leak Emergency Procedure (DOC-101): stop work, move upwind, and call Gas Control on radio channel 1 or 555-0142.",
+  "explanation": "Part of the request failed, so the system refused rather than pass on unchecked content.",
+  "internal_details_visible": [],
+  "audit_error_type": "ConnectionError"
+ },
+ {
+  "test": "3a DOC-102 registry entry missing (valve q)",
+  "shield": true,
+  "decision": "redact",
+  "category": "unverified",
+  "answer": "According to [DOC-101] Gas Leak Emergency Procedure, step 4, Gas Control isolates the leak by closing the isolation valve listed for that area. However, the isolation valve list is not provided in the context documents.\n\nHowever, we can infer that the isolation valve for the Meter Building is not sp",
+  "explanation": "UNREG-624fc79a Isolation Valve List was excluded: not an approved document, on a safety question.",
+  "internal_details_visible": [],
+  "audit_error_type": null
+ },
+ {
+  "test": "3b DOC-105 allowed_roles missing (restricted q, technician)",
+  "shield": true,
+  "decision": "allow",
+  "category": "clean",
+  "answer": "According to [DOC-105], the camera at the South Gate does not cover the east fence line between fence posts 14 and 19.",
+  "explanation": "All 2 sources are approved, signed by two approvers and unchanged, and the answer passed the release checks.",
+  "internal_details_visible": [],
+  "audit_error_type": null
+ },
+ {
+  "test": "4a sensors.json missing (route q)",
+  "shield": true,
+  "decision": "warn",
+  "category": "data_conflict",
+  "answer": "Warning: live sensor readings are unavailable. Confirm the evacuation route with Gas Control on radio channel 1 or 555-0142 before moving.\n\nAccording to [DOC-103] Evacuation Routes, the evacuation route from the Meter Building is Route S: south along the access road to the South Gate and Assembly Po",
+  "explanation": "Live sensor data was unavailable, so the route could not be checked.",
+  "internal_details_visible": [],
+  "audit_error_type": null
+ },
+ {
+  "test": "4b sensors.json corrupt (route q)",
+  "shield": true,
+  "decision": "warn",
+  "category": "data_conflict",
+  "answer": "Warning: live sensor readings are unavailable. Confirm the evacuation route with Gas Control on radio channel 1 or 555-0142 before moving.\n\nAccording to [DOC-103] Evacuation Routes, the evacuation route from the Meter Building is Route S: south along the access road to the South Gate and Assembly Po",
+  "explanation": "Live sensor data was unavailable, so the route could not be checked.",
+  "internal_details_visible": [],
+  "audit_error_type": null
+ },
+ {
+  "test": "5 answer inspection raises",
+  "shield": true,
+  "decision": "block",
+  "category": "system",
+  "answer": "A safety check could not finish, so no answer is shown. Follow the Gas Leak Emergency Procedure (DOC-101): stop work, move upwind, and call Gas Control on radio channel 1 or 555-0142.",
+  "explanation": "Part of the request failed, so the system refused rather than pass on unchecked content.",
+  "internal_details_visible": [],
+  "audit_error_type": "RuntimeError"
+ }
+]

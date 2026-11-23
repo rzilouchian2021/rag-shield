@@ -1,0 +1,9 @@
+{
+  "_note": "Simulated SCADA historian snapshot for a university demo. All values are invented.",
+  "station": "Station 41",
+  "updated": "2026-11-24T14:05:00Z",
+  "leak_area": "Meter Building (Area M)",
+  "methane_ppm": {"Meter Building": 12500, "Compressor Building": 0, "South Gate": 0, "North Gate": 0},
+  "pressure_psig": {"Meter run 1": 598, "Meter run 2": 571},
+  "wind": {"from": "S", "mph": 9}
+}

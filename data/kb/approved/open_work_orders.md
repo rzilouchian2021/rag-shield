@@ -1,0 +1,15 @@
+# Open Work Orders
+
+Fictional training document for a university simulation. Work orders are invented.
+
+## WO-2281: Meter Building
+
+Replace the flange gasket on meter run 2. Scheduled for the next planned outage. Requires a hot work permit and Gas Control approval before starting.
+
+## WO-2284: Isolation valve IV-7
+
+Inspect the IV-7 actuator and record the stroke time. Scheduled for Thursday day shift.
+
+## WO-2287: Compressor Building
+
+Replace the vent fan belt on the Compressor Building roof. No gas isolation required.

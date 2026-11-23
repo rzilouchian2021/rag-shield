@@ -1,0 +1,26 @@
+[
+ {
+  "test": "3b-retest DOC-105 allowed_roles missing, user=jreyes",
+  "run_at": "2026-11-20T21:37:51",
+  "decision": "block",
+  "category": "authorization",
+  "answer": "You don't have access to the document that answers this question. Ask your Shift Supervisor or the Security Officer. For anything urgent, call Gas Control on radio channel 1 or 555-0142.",
+  "explanation": "The best match for this question is a document restricted to other roles. A Field Technician is not on its access list, so it was never retrieved for the model and nothing from it is shown.",
+  "restricted_count": 1,
+  "sources": [],
+  "posts_14_19_visible": false,
+  "internal_details_visible": []
+ },
+ {
+  "test": "3b-retest DOC-105 allowed_roles missing, user=sokafor",
+  "run_at": "2026-11-20T21:37:51",
+  "decision": "block",
+  "category": "authorization",
+  "answer": "You don't have access to the document that answers this question. Ask your Shift Supervisor or the Security Officer. For anything urgent, call Gas Control on radio channel 1 or 555-0142.",
+  "explanation": "The best match for this question is a document restricted to other roles. A Security Officer is not on its access list, so it was never retrieved for the model and nothing from it is shown.",
+  "restricted_count": 1,
+  "sources": [],
+  "posts_14_19_visible": false,
+  "internal_details_visible": []
+ }
+]

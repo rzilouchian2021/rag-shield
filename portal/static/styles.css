@@ -364,3 +364,81 @@ button, textarea { font: inherit; color: inherit; }
 .callout.earlier { background: var(--sunk); border-color: var(--rule); }
 .callout.earlier strong { color: var(--ink); }
 .callout.earlier li { margin: 0.25rem 0; }
+
+/* --- Gas-leak demo: technician additions --- */
+.user-select { background: #2b4a6f; color: var(--navy-ink); border: 1px solid #3d5f86; border-radius: 6px;
+  padding: 0.35rem 0.5rem; font: inherit; font-weight: 600; }
+.live-dot { display: inline-block; width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--ok);
+  margin-left: 0.3rem; vertical-align: middle; }
+.facts dd.alarm { color: var(--danger); }
+.scenario-actions.one { grid-template-columns: 1fr; margin-top: 0.5rem; }
+.decision { font-size: 0.78rem; font-weight: 700; padding: 0.12rem 0.55rem; border-radius: 999px; }
+.decision.allow { background: var(--ok-tint); color: var(--ok); }
+.decision.warn { background: #fff3c4; color: #5c4600; }
+.decision.redact { background: var(--shield-tint); color: var(--shield); }
+.decision.block { background: var(--danger-tint); color: var(--danger); }
+.callout.why { background: var(--page); border-color: var(--rule); color: var(--ink); }
+.callout.why strong { color: var(--ink); }
+.callout.why span { display: block; }
+.source-reason { flex-basis: 100%; color: var(--ink-muted); font-size: 0.85rem; padding-left: 0.2rem; }
+
+/* --- Security console --- */
+.console-top { justify-content: space-between; }
+.console-live { color: var(--navy-muted); font-size: 0.9rem; }
+.console-layout { max-width: 1400px; margin: 0 auto; padding: 1.5rem 2rem; width: 100%;
+  display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 2rem; align-items: start; }
+.console-head { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.console-head h1 { margin: 0 0 0.8rem; font-size: 1.7rem; }
+.console-counts { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.requests { list-style: none; margin: 0; padding: 0; display: grid; gap: 1rem; }
+.request { background: var(--surface); border: 1px solid var(--rule); border-radius: var(--radius);
+  padding: 1rem 1.2rem; border-top: 4px solid var(--rule); }
+.request.allow { border-top-color: var(--ok); }
+.request.warn { border-top-color: #c99a00; }
+.request.redact { border-top-color: var(--shield); }
+.request.block { border-top-color: var(--danger); }
+.request-head { display: flex; gap: 0.8rem; align-items: center; flex-wrap: wrap; font-size: 1rem; }
+.request-time { font-weight: 700; font-variant-numeric: tabular-nums; }
+.request-id { background: var(--sunk); padding: 0.1rem 0.45rem; border-radius: 5px; font-size: 0.95rem; }
+.request-user { color: var(--ink-muted); text-transform: capitalize; }
+.chip { font-size: 0.85rem; font-weight: 700; padding: 0.15rem 0.6rem; border-radius: 999px;
+  background: var(--sunk); color: var(--ink); }
+.chip.decision.allow { background: var(--ok-tint); color: var(--ok); }
+.chip.decision.warn { background: #fff3c4; color: #5c4600; }
+.chip.decision.redact { background: var(--shield-tint); color: var(--shield); }
+.chip.decision.block { background: var(--danger-tint); color: var(--danger); }
+.chip.category.clean { background: var(--ok-tint); color: var(--ok); }
+.chip.category.unprotected { background: var(--exposed-tint); color: var(--exposed); }
+.request-why { margin: 0.6rem 0; font-size: 1.05rem; }
+.request-sources { width: 100%; border-collapse: collapse; font-size: 0.92rem; margin: 0.4rem 0; }
+.request-sources td { padding: 0.35rem 0.5rem 0.35rem 0; border-top: 1px solid var(--rule); vertical-align: top; }
+.request-sources td:first-child { white-space: nowrap; font-weight: 600; }
+.status.used { color: var(--ok); font-weight: 700; }
+.status.excluded { color: var(--danger); font-weight: 700; }
+.status.restricted { color: var(--exposed); font-weight: 700; }
+.request-conflict { margin: 0.4rem 0; color: var(--danger); font-weight: 600; font-size: 0.92rem; }
+.audit summary { cursor: pointer; color: var(--shield); font-weight: 600; margin-top: 0.4rem; }
+.audit pre { background: var(--sunk); padding: 0.8rem; border-radius: 6px; overflow-x: auto;
+  font-size: 0.8rem; max-height: 22rem; }
+.console-side h2 { font-size: 1.1rem; margin: 0.4rem 0 0.8rem; }
+@media (max-width: 1000px) { .console-layout { grid-template-columns: 1fr; padding: 1rem; } }
+
+/* Scenario F: station-based access */
+.tag.away { margin-left: 0.35rem; background: var(--exposed-tint); color: var(--exposed); }
+.step-up { display: flex; flex-direction: column; gap: 0.4rem; margin-top: 0.7rem; }
+.step-up label { font-size: 0.88rem; font-weight: 600; }
+.step-up-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.step-up input { font: inherit; padding: 0.45rem 0.6rem; border: 1px solid var(--rule);
+  border-radius: 6px; width: 10rem; max-width: 100%; letter-spacing: 0.2em; background: var(--surface); color: var(--ink); }
+.step-up-msg { margin: 0; font-size: 0.88rem; color: var(--ink-muted); min-height: 1.2em; }
+.chip.category.break_glass, .chip.category.step_up { background: var(--exposed-tint); color: var(--exposed); }
+
+/* Console integrity panel */
+.integrity { list-style: none; margin: 0 0 1.2rem; padding: 0; display: flex; flex-direction: column; gap: 0.4rem; }
+.integrity li { display: flex; gap: 0.5rem; align-items: baseline; font-size: 0.88rem; }
+.integrity .mark { font-weight: 800; font-size: 0.72rem; padding: 0.05rem 0.4rem; border-radius: 4px; }
+.integrity .ok .mark { background: var(--ok-tint); color: var(--ok); }
+.integrity .bad .mark { background: var(--danger-tint); color: var(--danger); }
+.integrity .bad { color: var(--danger); font-weight: 600; }
+.step-up-row { flex-wrap: nowrap; align-items: stretch; }
+.step-up-row .action { width: auto; flex: 0 0 auto; margin: 0; padding-inline: 1.2rem; }

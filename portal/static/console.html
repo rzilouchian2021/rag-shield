@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RAG Shield Console (simulation)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="console-body">
+  <div class="disclaimer" role="note">
+    Fictional class simulation for a Cyber Risk Modeling project. Not affiliated with or endorsed by
+    The Williams Companies, Inc. All people, documents and readings are invented.
+  </div>
+  <header class="topbar console-top">
+    <div class="brand"><span class="wordmark">RAG Shield</span><span class="brand-rule" aria-hidden="true"></span>
+      <span class="product">Security console · Station 41</span></div>
+    <span class="console-live" id="console-status" role="status">Connecting...</span>
+  </header>
+  <main class="console-layout">
+    <section aria-labelledby="requests-title">
+      <div class="console-head">
+        <h1 id="requests-title">Requests</h1>
+        <div class="console-counts" id="counts"></div>
+      </div>
+      <p id="console-empty" class="muted">No requests yet. Ask the Field Assistant a question in the technician portal.</p>
+      <ol id="requests" class="requests"></ol>
+    </section>
+    <aside aria-labelledby="alerts-title" class="console-side">
+      <h2 id="integrity-title">Integrity</h2>
+      <ul id="integrity" class="integrity" aria-labelledby="integrity-title"></ul>
+      <h2 id="alerts-title">Security alerts</h2>
+      <ul id="console-alerts" class="alerts"></ul>
+    </aside>
+  </main>
+  <script src="/console.js"></script>
+</body>
+</html>

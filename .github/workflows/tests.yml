@@ -1,0 +1,19 @@
+# Runs the full test suite, including the OWASP RAG red-team tests
+# (tests/test_owasp_rag.py), on every push and pull request. No model or secrets are
+# needed: tests use a fake model, and signing keys are not required to verify.
+name: tests
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: python -m pytest -q

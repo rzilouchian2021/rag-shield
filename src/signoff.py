@@ -68,6 +68,9 @@ class Policy:
 ENFORCED: dict[Path, Policy] = {
     (PROJECT_ROOT / "config" / "document_registry.json").resolve(): Policy(
         PROJECT_ROOT / "config" / "approvers.json", PROJECT_ROOT / "config" / "trust_root.pub"),
+    # The gas-leak demo knowledge base (data/kb), signed by the same approvers.
+    (PROJECT_ROOT / "config" / "kb_registry.json").resolve(): Policy(
+        PROJECT_ROOT / "config" / "approvers.json", PROJECT_ROOT / "config" / "trust_root.pub"),
 }
 
 
@@ -154,11 +157,21 @@ def save_keyring(policy: Policy, data: dict, root_key: Ed25519PrivateKey) -> Non
 
 # --- Verifying a registry entry ------------------------------------------------
 
+ACCESS_FIELDS = ("allowed_roles", "site", "sensitivity")
+
+
 def signoff_payload(entry: dict, signature: dict) -> bytes:
-    return canonical({"purpose": SIGNOFF_PURPOSE, "doc_id": entry.get("doc_id"),
-                      "filename": entry.get("filename"), "sha256": signature.get("sha256"),
-                      "version": signature.get("version"), "approver": signature.get("approver"),
-                      "key_id": signature.get("key_id"), "signed_at": signature.get("signed_at")})
+    """What an approver signs. Access fields are covered too, so editing who may read a
+    document (or which station it belongs to) breaks the signatures. Entries without
+    access fields sign exactly what they did before."""
+    payload = {"purpose": SIGNOFF_PURPOSE, "doc_id": entry.get("doc_id"),
+               "filename": entry.get("filename"), "sha256": signature.get("sha256"),
+               "version": signature.get("version"), "approver": signature.get("approver"),
+               "key_id": signature.get("key_id"), "signed_at": signature.get("signed_at")}
+    access = {k: entry[k] for k in ACCESS_FIELDS if k in entry}
+    if access:
+        payload["access"] = access
+    return canonical(payload)
 
 
 @dataclass
