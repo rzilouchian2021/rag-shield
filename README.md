@@ -104,6 +104,8 @@ To use the Anthropic API instead, set `LLM_PROVIDER=anthropic` and `ANTHROPIC_AP
 | Run the Watch-stage drill (about 2 minutes) | `python -m demo.run_drill`, or use the Watch page |
 | Validate the retrieval monitor (about 8 minutes) | `python -m demo.validate_monitor` |
 | Confirm manual verdicts as a group | Review verdicts page, then **Rebuild summaries and FAIR export** |
+| Portal evaluation: 100 cases, Shield off vs on (about 15 minutes, needs Ollama) | `python -m evaluation.portal_eval.run`, then `python -m evaluation.portal_eval.analyze` |
+| Portal edge cases: where RAG Shield still fails | `python -m evaluation.portal_eval.edge_cases`, then `python -m evaluation.portal_eval.edge_cases report` |
 
 ## Gas-leak demo: technician portal and security console
 
@@ -132,7 +134,25 @@ Closing: **Tamper with audit log** rewrites a past decision; the console's Integ
 
 Set `RAG_SHIELD_DEMO_PIN` in `.env` (see `.env.example`) for scenario F; without it, other stations' sensitive documents stay locked.
 
-Architecture and trust boundaries: `docs/architecture.md`. Audit of the starting point: `docs/existing-system-audit.md`. Independent test results: `docs/test-results.md`. Limitations and production needs: `docs/limitations.md`.
+### Portal evaluation
+
+100 synthetic test cases (`evaluation/portal_eval/cases.json`): 50 attacks (10 each of poisoned documents, prompt injection, hidden-character injection, unauthorized role, cross-station access) and 50 legitimate questions, each run with RAG Shield off and on against the real model (`llama3.1:8b`, temperature 0, seed 42). Full method and findings: `docs/portal-evaluation.md`.
+
+| Metric | Shield off | Shield on |
+| --- | --- | --- |
+| Attack success rate | 70% (35/50) | **0%** (0/50) |
+| Detection rate | 0% (no checks) | **96%** (48/50) |
+| False-positive rate | 0% | **0%** |
+| Legitimate request success | 94% (47/50) | 92% (46/50) |
+| Average latency, legitimate requests | 2.24 s | 2.03 s |
+
+The two detection misses were not leaks: a Spanish injection was never retrieved in either mode, and a cross-station question was blocked as an invented answer rather than flagged as cross-station. The four unsuccessful legitimate answers were incomplete model answers or a scoring judgment; the Shield blocked none. Rates are shown with 95% Wilson intervals. Some scoring rules and two fixes were made after reading the first run, so the re-run is not a fully independent test.
+
+A further 19 edge cases (`evaluation/portal_eval/edge_cases.py`) show where the Shield still fails: two colluding approvers signing a false procedure, unreviewed uploads on non-safety questions, and station names it does not recognize let wrong content through; a flood of look-alike uploads and a tampered signed archive make it withhold the answer (fails safe).
+
+Charts (PNG, 2400 px wide) are in `evaluation/portal_eval/results/charts/`: `1_attack_success_rate`, `2_detection_by_type`, `3_response_time`, `4_summary` (also split into `4a_summary_graph` and `4b_summary_table`), and `5_edge_cases`. The first run's charts are kept in `evaluation/portal_eval/results_v1/`.
+
+Architecture and trust boundaries: `docs/architecture.md`. Audit of the starting point: `docs/existing-system-audit.md`. Independent test results: `docs/test-results.md` (from before station access and the OWASP controls were added). Limitations and production needs: `docs/limitations.md`.
 
 **Loading documents:** put TXT, MD, or PDF files in `data/untrusted/`, then use **Re-index documents** on the Documents page or run `--sync`. New files are classed as untrusted until they are registered and approved.
 
@@ -155,6 +175,10 @@ Architecture and trust boundaries: `docs/architecture.md`. Audit of the starting
 - The retrieval concentration monitor was revised after failing its first drill. On revalidation it caught 3 of 3 decoys with no false alarms, but by thin margins and on a small sample (`docs/phase7_watch.md`).
 - The monitor only sees documents that are retrieved broadly. A narrow, targeted poison document would not trigger it.
 - Monitoring times start from file modification times, which can be preserved by copies or falsified.
+- Portal: a station is recognized only when it is named ("Station 52"); an asset tag such as PSV-52-2 or "Station Fifty-Two" falls back to the user's home station.
+- Portal: unreviewed uploads are excluded only from safety questions, so they can still answer other questions (phone numbers, email addresses).
+- Portal: approver private keys use the library's default encryption (PBKDF2, 2,048 iterations, AES-256-CBC); a real deployment would use far more iterations or a hardware key store.
+- Portal stress test: the server answers one question at a time and checks the rate limit only when a question's turn comes, so one user sending many questions at once can make others wait. A JSON body that is not an object returns 500 instead of 400, and a malformed `Content-Length` header gets no reply.
 
 ## Ethics and safety
 
